@@ -1,0 +1,153 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #d9f99d, #86efac);
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 10px;
+  color: #14532d;
+}
+
+.subtitle {
+  color: #4b5563;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #e5e7eb;
+  font-weight: bold;
+}
+
+.tab.active {
+  background: #22c55e;
+  color: white;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+label {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.primary-btn,
+.secondary-btn,
+.stats-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.primary-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.primary-btn:hover {
+  background: #15803d;
+}
+
+.secondary-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.secondary-btn:hover {
+  background: #1d4ed8;
+}
+
+.stats-btn {
+  background: #9333ea;
+  color: white;
+}
+
+.stats-btn:hover {
+  background: #7e22ce;
+}
+
+.logout-btn {
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  background: #ef4444;
+  color: white;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.message {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #b91c1c;
+  min-height: 18px;
+}
+
+.hidden {
+  display: none;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClimbQuest - Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page auth-page">
+    <div class="card">
+      <h1>ClimbQuest</h1>
+      <p class="subtitle">Login or create an account to start climbing.</p>
+
+      <div class="tabs">
+        <button id="loginTab" class="tab active">Login</button>
+        <button id="registerTab" class="tab">Register</button>
+      </div>
+
+      <form id="authForm" class="form">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required />
+
+        <div id="registerFields" class="hidden">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Choose a username" />
+        </div>
+
+        <button type="submit" class="primary-btn" id="submitBtn">Login</button>
+      </form>
+
+      <p id="message" class="message"></p>
+    </div>
+  </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
