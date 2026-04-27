@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClimbQuest - Practice</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .game-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .game-container {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 700px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .game-header h2 {
+      color: #14532d;
+      font-size: 20px;
+    }
+
+    .timer {
+      font-size: 22px;
+      font-weight: bold;
+      color: #14532d;
+      background: #d9f99d;
+      padding: 6px 16px;
+      border-radius: 10px;
+    }
+
+    .timer.warning {
+      background: #fef08a;
+      color: #854d0e;
+    }
+
+    .timer.danger {
+      background: #fecaca;
+      color: #991b1b;
+    }
+
+    .score {
+      font-size: 16px;
+      font-weight: bold;
+      color: #4b5563;
+    }
+
+    .game-body {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .canvas-wrapper {
+      flex-shrink: 0;
+    }
+
+    canvas {
+      border-radius: 12px;
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      display: block;
+    }
+
+    .question-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .question-box {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .question-label {
+      font-size: 13px;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 42px;
+      font-weight: bold;
+      color: #14532d;
+    }
+
+    .answer-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    .answer-area input {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 20px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .answer-area input:focus {
+      border-color: #22c55e;
+    }
+
+    .answer-area input.correct {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .answer-area input.incorrect {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .submit-btn {
+      padding: 14px 24px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover { background: #15803d; }
+    .submit-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+    .feedback {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      min-height: 24px;
+      color: #16a34a;
+    }
+
+    .feedback.wrong { color: #dc2626; }
+
+    .difficulty-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .diff-btn {
+      padding: 8px 18px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      background: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      color: #4b5563;
+      transition: all 0.2s;
+    }
+
+    .diff-btn.active {
+      border-color: #22c55e;
+      background: #22c55e;
+      color: white;
+    }
+
+    .back-btn {
+      align-self: flex-start;
+      background: none;
+      border: none;
+      color: #4b5563;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 0;
+      text-decoration: underline;
+    }
+
+    .back-btn:hover { color: #14532d; }
+
+    .game-over {
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .game-over h2 { color: #14532d; font-size: 26px; }
+    .game-over p { color: #4b5563; font-size: 18px; }
+
+    .play-again-btn {
+      padding: 14px 32px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .play-again-btn:hover { background: #15803d; }
+  </style>
+</head>
+<body>
+  <div class="game-page">
+    <div class="game-container">
+
+      <button class="back-btn" onclick="window.location.href='home.html'">← Back to Menu</button>
+
+      <div class="game-header">
+        <h2>Practice Mode</h2>
+        <div class="timer" id="timer">60</div>
+        <div class="score">Score: <span id="scoreDisplay">0</span></div>
+      </div>
+
+      <div class="difficulty-bar">
+        <button class="diff-btn active" data-level="easy">Easy</button>
+        <button class="diff-btn" data-level="medium">Medium</button>
+        <button class="diff-btn" data-level="hard">Hard</button>
+      </div>
+
+      <div class="game-body">
+        <div class="canvas-wrapper">
+          <canvas id="gameCanvas" width="140" height="320"></canvas>
+        </div>
+
+        <div class="question-area">
+          <div class="question-box">
+            <p class="question-label">What is...</p>
+            <p class="question-text" id="questionText">? × ?</p>
+          </div>
+
+          <div class="answer-area">
+            <input type="number" id="answerInput" autocomplete="off" />
+            <button class="submit-btn" id="submitBtn">Submit</button>
+          </div>
+
+          <p class="feedback" id="feedback"></p>
+        </div>
+      </div>
+
+      <div class="game-over" id="gameOver">
+        <h2>Time's Up!</h2>
+        <p>Final Score: <strong id="finalScore">0</strong></p>
+        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="practice.js"></script>
+</body>
+</html>
