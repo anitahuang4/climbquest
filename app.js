@@ -129,7 +129,7 @@ if (joinLobbyBtn) {
 
 if (practiceBtn) {
   practiceBtn.addEventListener("click", () => {
-    alert("Practice Mode clicked (next step: math game)");
+    window.location.href = "practice.html";
   });
 }
 
