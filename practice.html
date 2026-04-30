@@ -2,276 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClimbQuest - Practice</title>
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Practice</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .game-page {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .game-container {
-      background: white;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      width: 100%;
-      max-width: 700px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .game-header h2 {
-      color: #14532d;
-      font-size: 20px;
-    }
-
-    .timer {
-      font-size: 22px;
-      font-weight: bold;
-      color: #14532d;
-      background: #d9f99d;
-      padding: 6px 16px;
-      border-radius: 10px;
-    }
-
-    .timer.warning {
-      background: #fef08a;
-      color: #854d0e;
-    }
-
-    .timer.danger {
-      background: #fecaca;
-      color: #991b1b;
-    }
-
-    .score {
-      font-size: 16px;
-      font-weight: bold;
-      color: #4b5563;
-    }
-
-    .game-body {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .canvas-wrapper {
-      flex-shrink: 0;
-    }
-
-    canvas {
-      border-radius: 12px;
-      background: #f0fdf4;
-      border: 2px solid #86efac;
-      display: block;
-    }
-
-    .question-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      justify-content: center;
-    }
-
-    .question-box {
-      background: #f0fdf4;
-      border: 2px solid #86efac;
-      border-radius: 14px;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .question-label {
-      font-size: 13px;
-      color: #4b5563;
-      margin-bottom: 8px;
-    }
-
-    .question-text {
-      font-size: 42px;
-      font-weight: bold;
-      color: #14532d;
-    }
-
-    .answer-area {
-      display: flex;
-      gap: 10px;
-    }
-
-    .answer-area input {
-      flex: 1;
-      padding: 14px;
-      border: 2px solid #cbd5e1;
-      border-radius: 12px;
-      font-size: 20px;
-      text-align: center;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .answer-area input:focus {
-      border-color: #22c55e;
-    }
-
-    .answer-area input.correct {
-      border-color: #22c55e;
-      background: #f0fdf4;
-    }
-
-    .answer-area input.incorrect {
-      border-color: #ef4444;
-      background: #fef2f2;
-    }
-
-    .submit-btn {
-      padding: 14px 24px;
-      background: #16a34a;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .submit-btn:hover { background: #15803d; }
-    .submit-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-
-    .feedback {
-      text-align: center;
-      font-size: 16px;
-      font-weight: bold;
-      min-height: 24px;
-      color: #16a34a;
-    }
-
-    .feedback.wrong { color: #dc2626; }
-
-    .difficulty-bar {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .diff-btn {
-      padding: 8px 18px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      background: white;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      color: #4b5563;
-      transition: all 0.2s;
-    }
-
-    .diff-btn.active {
-      border-color: #22c55e;
-      background: #22c55e;
-      color: white;
-    }
-
-    .back-btn {
-      align-self: flex-start;
-      background: none;
-      border: none;
-      color: #4b5563;
-      font-size: 14px;
-      cursor: pointer;
-      padding: 4px 0;
-      text-decoration: underline;
-    }
-
-    .back-btn:hover { color: #14532d; }
-
-    .game-over {
-      text-align: center;
-      display: none;
-      flex-direction: column;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .game-over h2 { color: #14532d; font-size: 26px; }
-    .game-over p { color: #4b5563; font-size: 18px; }
-
-    .play-again-btn {
-      padding: 14px 32px;
-      background: #16a34a;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .play-again-btn:hover { background: #15803d; }
-  </style>
 </head>
 <body>
-  <div class="game-page">
-    <div class="game-container">
 
-      <button class="back-btn" onclick="window.location.href='home.html'">← Back to Menu</button>
-
-      <div class="game-header">
-        <h2>Practice Mode</h2>
-        <div class="timer" id="timer">60</div>
-        <div class="score">Score: <span id="scoreDisplay">0</span></div>
+  <div class="match-hud">
+    <div class="match-hud-left">
+      <div class="nav-mark" style="width: 18px; height: 18px;"></div>
+      <div class="eyebrow">Practice · solo · <span id="hudDiff">Novice</span></div>
+    </div>
+    <div class="match-hud-right">
+      <div class="hud-stat">
+        <div class="eyebrow">Streak</div>
+        <div class="hud-stat-value">× <span id="streakDisplay">0</span></div>
       </div>
-
-      <div class="difficulty-bar">
-        <button class="diff-btn active" data-level="easy">Easy</button>
-        <button class="diff-btn" data-level="medium">Medium</button>
-        <button class="diff-btn" data-level="hard">Hard</button>
+      <div class="hud-stat">
+        <div class="eyebrow">Score</div>
+        <div class="hud-stat-value"><span id="scoreDisplay">0</span></div>
       </div>
-
-      <div class="game-body">
-        <div class="canvas-wrapper">
-          <canvas id="gameCanvas" width="140" height="320"></canvas>
-        </div>
-
-        <div class="question-area">
-          <div class="question-box">
-            <p class="question-label">What is...</p>
-            <p class="question-text" id="questionText">? × ?</p>
-          </div>
-
-          <div class="answer-area">
-            <input type="number" id="answerInput" autocomplete="off" />
-            <button class="submit-btn" id="submitBtn">Submit</button>
-          </div>
-
-          <p class="feedback" id="feedback"></p>
-        </div>
-      </div>
-
-      <div class="game-over" id="gameOver">
-        <h2>Time's Up!</h2>
-        <p>Final Score: <strong id="finalScore">0</strong></p>
-        <button class="play-again-btn" id="playAgainBtn">Play Again</button>
-      </div>
-
+      <div class="timer" id="timer">60</div>
+      <a class="back-btn" href="home.html">← Menu</a>
     </div>
   </div>
 
+  <div class="match-shell">
+    <div class="match-ambient"></div>
+
+    <div class="match-body">
+
+      <div class="iri-tree-wrap">
+        <div class="iri-tree" id="iriTree">
+          <div class="iri-tree-track"></div>
+          <div class="iri-tree-finish" id="treeFinish">0</div>
+          <div class="iri-tree-monkey" id="treeMonkey" style="top: 480px;">
+            <div data-monkey data-size="64"></div>
+          </div>
+        </div>
+        <div class="iri-tree-label">
+          <div class="eyebrow">P01</div>
+          <div class="iri-tree-label-name">YOU</div>
+          <div class="iri-tree-label-score" id="treeScore">000</div>
+        </div>
+      </div>
+
+      <div class="match-stage">
+        <div class="difficulty-bar">
+          <button class="diff-btn active" data-level="easy">Novice</button>
+          <button class="diff-btn" data-level="medium">Climber</button>
+          <button class="diff-btn" data-level="hard">Apex</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+          <div class="question-eyebrow">Solve</div>
+          <div class="question-text" id="questionText">? × ?</div>
+        </div>
+
+        <div class="answer-area">
+          <input type="number" id="answerInput" autocomplete="off" placeholder="——" />
+          <button class="submit-btn" id="submitBtn">Enter</button>
+        </div>
+
+        <p class="feedback" id="feedback"></p>
+
+        <!-- Hidden canvas: required by practice.js init() but the iridescent
+             tree above replaces its visual role. -->
+        <canvas id="gameCanvas" width="140" height="320"></canvas>
+
+        <div class="game-over" id="gameOver">
+          <div class="eyebrow eyebrow-dot">Round complete</div>
+          <h2>Time's up.</h2>
+          <p>Final score<strong id="finalScore">0</strong></p>
+          <button class="play-again-btn" id="playAgainBtn">Climb again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="monkey.js"></script>
   <script type="module" src="practice.js"></script>
+  <script>
+    // ---- Build the iridescent climbing tree rungs ----
+    (function () {
+      const RUNGS = 12;
+      const TREE_HEIGHT = 520;
+      const tree = document.getElementById('iriTree');
+      const treeFinish = document.getElementById('treeFinish');
+      const treeMonkey = document.getElementById('treeMonkey');
+      const treeScore = document.getElementById('treeScore');
+      const TARGET = 20;
+
+      for (let i = 0; i < RUNGS; i++) {
+        const t = i / (RUNGS - 1);
+        const top = t * (TREE_HEIGHT - 60) + 20;
+        const rung = document.createElement('div');
+        rung.className = 'iri-tree-rung';
+        rung.style.top = top + 'px';
+        rung.dataset.threshold = (1 - t).toFixed(3);
+        tree.appendChild(rung);
+      }
+      const rungs = tree.querySelectorAll('.iri-tree-rung');
+
+      function setProgress(score) {
+        const progress = Math.min(1, score / TARGET);
+        rungs.forEach(r => {
+          const threshold = parseFloat(r.dataset.threshold);
+          r.classList.toggle('reached', threshold <= progress + 0.001);
+        });
+        const monkeyY = (1 - progress) * (TREE_HEIGHT - 60) + 20;
+        treeMonkey.style.top = monkeyY + 'px';
+
+        if (progress >= 0.999) {
+          treeFinish.classList.add('reached');
+          treeFinish.textContent = '▲';
+        } else {
+          treeFinish.classList.remove('reached');
+          treeFinish.textContent = Math.round(progress * 100);
+        }
+        treeScore.textContent = String(score).padStart(3, '0');
+      }
+      setProgress(0);
+
+      // Sync tree to score changes (practice.js writes #scoreDisplay).
+      const scoreEl = document.getElementById('scoreDisplay');
+      const observer = new MutationObserver(() => {
+        const v = parseInt(scoreEl.textContent || '0', 10);
+        if (!isNaN(v)) setProgress(v);
+      });
+      observer.observe(scoreEl, { childList: true, characterData: true, subtree: true });
+    })();
+
+    // ---- HUD timer pill: practice.js sets className 'timer warning|danger' ----
+    // Add a leading dot before the time text — we render the dot via ::before
+    // already, so no extra work needed.
+
+    // ---- Streak counter (incremented on consecutive corrects) ----
+    (function () {
+      const feedback = document.getElementById('feedback');
+      const streakEl = document.getElementById('streakDisplay');
+      let streak = 0;
+      const observer = new MutationObserver(() => {
+        const txt = (feedback.textContent || '').toLowerCase();
+        if (txt.startsWith('correct')) streak++;
+        else if (txt.startsWith('wrong')) streak = 0;
+        else return;
+        streakEl.textContent = streak;
+      });
+      observer.observe(feedback, { childList: true, characterData: true, subtree: true });
+    })();
+
+    // ---- HUD difficulty label, kept in sync with the active diff-btn ----
+    (function () {
+      const labelEl = document.getElementById('hudDiff');
+      const map = { easy: 'Novice', medium: 'Climber', hard: 'Apex' };
+      document.querySelectorAll('.diff-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          labelEl.textContent = map[btn.dataset.level] || 'Novice';
+        });
+      });
+    })();
+
+    // ---- Auto-submit on Enter (practice.js already handles this) ----
+  </script>
 </body>
 </html>
