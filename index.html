@@ -2,40 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClimbQuest - Login</title>
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Sign in</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="page auth-page">
-    <div class="card">
-      <h1>ClimbQuest</h1>
-      <p class="subtitle">Login or create an account to start climbing.</p>
+  <div class="auth-shell">
+    <div class="auth-form-side">
+      <div class="auth-form">
+        <div class="eyebrow eyebrow-dot" style="margin-bottom: 40px;">Returning climber</div>
 
-      <div class="tabs">
-        <button id="loginTab" class="tab active">Login</button>
-        <button id="registerTab" class="tab">Register</button>
-      </div>
+        <h1 id="authHeadline">Welcome<br/><span class="iri-text">back.</span></h1>
+        <p class="subtitle" id="authSub">Pick up where you left off.</p>
 
-      <form id="authForm" class="form">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="Enter your email" required />
-
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required />
-
-        <div id="registerFields" class="hidden">
-          <label for="username">Username</label>
-          <input type="text" id="username" placeholder="Choose a username" />
+        <div class="tabs" style="margin-top: 32px;">
+          <button id="loginTab" type="button" class="tab active">Sign in</button>
+          <button id="registerTab" type="button" class="tab">Create</button>
         </div>
 
-        <button type="submit" class="primary-btn" id="submitBtn">Login</button>
-      </form>
+        <form id="authForm" class="form" style="margin-top: 32px;">
+          <div id="registerFields" class="hidden">
+            <label for="username">Handle</label>
+            <input type="text" id="username" placeholder="climber_07" maxlength="16" />
+          </div>
 
-      <p id="message" class="message"></p>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="you@school.edu" required />
+          </div>
+
+          <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••" required />
+          </div>
+
+          <button type="submit" class="primary-btn" id="submitBtn" style="margin-top: 8px;">Sign in</button>
+        </form>
+
+        <p id="message" class="message"></p>
+
+      </div>
+    </div>
+
+    <div class="auth-visual">
+      <div class="auth-visual-blob-a"></div>
+      <div class="auth-visual-blob-b"></div>
+      <div class="auth-visual-monkey">
+        <div data-monkey data-size="420"></div>
+      </div>
     </div>
   </div>
 
-    <script type="module" src="app.js"></script>
+  <script src="monkey.js"></script>
+  <script type="module" src="app.js"></script>
+  <script>
+    // Swap the headline copy when toggling between sign-in and sign-up.
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const headline = document.getElementById('authHeadline');
+      const sub = document.getElementById('authSub');
+      const eyebrow = document.querySelector('.eyebrow-dot');
+
+      if (loginTab) {
+        loginTab.addEventListener('click', () => {
+          headline.innerHTML = 'Welcome<br/><span class="iri-text">back.</span>';
+          sub.textContent = 'Pick up where you left off.';
+          eyebrow.textContent = 'Returning climber';
+        });
+      }
+      if (registerTab) {
+        registerTab.addEventListener('click', () => {
+          headline.innerHTML = 'Pick a<br/><span class="iri-text">handle.</span>';
+          sub.textContent = "It'll appear above your monkey in matches.";
+          eyebrow.textContent = 'New account';
+        });
+      }
+    });
+  </script>
 </body>
 </html>

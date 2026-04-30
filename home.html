@@ -2,26 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClimbQuest - Home</title>
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Home</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="page home-page">
-    <div class="card home-card">
-      <h1>Welcome to ClimbQuest</h1>
-      <p class="subtitle" id="welcomeText">Ready to play?</p>
-      
-    <div class="button-group">
-    <button id="joinLobbyBtn" class="primary-btn">Join Lobby</button>
-    <button id="practiceBtn" class="secondary-btn">Practice Mode</button>
-    <button id="statsBtn" class="stats-btn">User Statistics</button>
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-mark"></div>
+      <span>ClimbQuest</span>
+      <span class="nav-version">v1.2</span>
     </div>
-
-      <button id="logoutBtn" class="logout-btn">Logout</button>
+    <div class="nav-links">
+      <a class="active">Home</a>
+      <a id="navPractice">Practice</a>
+      <a id="navStats">Leaderboard</a>
+      <a id="navProfile">Profile</a>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2);">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--grad-iri); background-size: 200% 200%; animation: iri-shift 6s ease-in-out infinite;"></div>
+        <span id="navUser">climber</span>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Sign out</button>
     </div>
   </div>
 
-    <script type="module" src="app.js"></script>
+  <div class="home-shell">
+    <div class="home-ambient"></div>
+    <div class="home-container">
+
+      <div class="home-hero">
+        <div class="eyebrow eyebrow-dot home-eyebrow-badge">v1.2 — Multiplication, in motion</div>
+
+        <div class="home-monkey-wrap">
+          <div data-monkey data-size="320"></div>
+        </div>
+
+        <h1 class="home-headline">
+          Climb<br/>
+          <span class="iri-text">the times tables.</span>
+        </h1>
+
+        <p class="home-sub" id="welcomeText">Ready to play?</p>
+
+        <div class="home-actions button-group" style="flex-direction: row;">
+          <button id="joinLobbyBtn" class="primary-btn">
+            Join lobby
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+          <button id="practiceBtn" class="secondary-btn">Practice solo</button>
+          <button id="statsBtn" class="stats-btn">Statistics</button>
+        </div>
+
+        <div class="home-meta-row">
+          <span>—— No installs</span>
+          <span>—— Browser native</span>
+          <span>—— Sub-200ms input</span>
+        </div>
+      </div>
+
+      <div class="altitude-section">
+        <div class="eyebrow eyebrow-dot" style="margin-bottom: 24px;">Three altitudes</div>
+        <div class="altitude-grid">
+          <div class="altitude-cell">
+            <div>
+              <div class="eyebrow">Novice</div>
+              <div class="altitude-cell-title">Tables 2 – 9</div>
+            </div>
+            <div class="altitude-cell-stats">
+              <div>
+                <div class="eyebrow">Round</div>
+                <div class="numeric" style="font-size: 28px;">90s</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="eyebrow">Mult</div>
+                <div class="numeric" style="font-size: 28px;">1.0×</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="altitude-cell">
+            <div>
+              <div class="eyebrow">Climber</div>
+              <div class="altitude-cell-title">Tables 4 – 12</div>
+            </div>
+            <div class="altitude-cell-stats">
+              <div>
+                <div class="eyebrow">Round</div>
+                <div class="numeric" style="font-size: 28px;">75s</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="eyebrow">Mult</div>
+                <div class="numeric" style="font-size: 28px;">1.5×</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="altitude-cell">
+            <div>
+              <div class="eyebrow">Apex</div>
+              <div class="altitude-cell-title">Tables 7 – 15</div>
+            </div>
+            <div class="altitude-cell-stats">
+              <div>
+                <div class="eyebrow">Round</div>
+                <div class="numeric" style="font-size: 28px;">60s</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="eyebrow">Mult</div>
+                <div class="numeric" style="font-size: 28px;">2.0×</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-footer">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="nav-mark" style="width: 14px; height: 14px;"></div>
+          ClimbQuest © 2026
+        </div>
+        <div style="display: flex; gap: 32px;">
+          <span>Team 7 · CS 160</span>
+          <span>San José State · Spring '26</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="monkey.js"></script>
+  <script type="module" src="app.js"></script>
+  <script>
+    // Reflect the welcomed handle in the nav avatar chip.
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new MutationObserver(() => {
+        const text = document.getElementById('welcomeText')?.textContent || '';
+        const m = text.match(/Welcome,\s*([^!]+)!/);
+        if (m && m[1]) {
+          const navUser = document.getElementById('navUser');
+          if (navUser) navUser.textContent = m[1].trim();
+        }
+      });
+      const target = document.getElementById('welcomeText');
+      if (target) observer.observe(target, { childList: true, characterData: true, subtree: true });
+
+      const navPractice = document.getElementById('navPractice');
+      if (navPractice) navPractice.addEventListener('click', () => { window.location.href = 'practice.html'; });
+    });
+  </script>
 </body>
 </html>
