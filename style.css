@@ -1113,3 +1113,88 @@ canvas#gameCanvas { display: none; }
   transition: border-color .15s, color .15s;
 }
 .back-btn:hover { color: var(--ink); border-color: var(--ink-3); }
+
+/* ===== Stats Page ===== */
+
+.stats-header {
+  margin-top: 64px;
+  margin-bottom: 32px;
+}
+
+.stats-title {
+  font-size: 64px;
+  line-height: 0.95;
+  margin-top: 18px;
+}
+
+.stats-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 48px;
+}
+
+.stats-card {
+  padding: 32px;
+  border-right: 1px solid var(--line);
+}
+
+.stats-card:last-child {
+  border-right: none;
+}
+
+.stats-panel {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 36px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+#scoreChart {
+  margin-top: 24px;
+  max-height: 320px;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 22px;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.stats-table th {
+  color: var(--ink-2);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stats-table td {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.stats-table tr:last-child td {
+  border-bottom: none;
+}
+
+@media (max-width: 900px) {
+  .stats-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-title {
+    font-size: 44px;
+  }
+}

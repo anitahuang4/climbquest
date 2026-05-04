@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Statistics</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-mark"></div>
+      <span>ClimbQuest</span>
+      <span class="nav-version">v1.2</span>
+    </div>
+
+    <div class="nav-links">
+      <a id="navHome">Home</a>
+      <a id="navPractice">Practice</a>
+      <a class="active">Statistics</a>
+    </div>
+
+    <button onclick="window.location.href='home.html'" class="logout-btn">Back Home</button>
+  </div>
+
+  <div class="home-shell">
+    <div class="home-ambient"></div>
+
+    <div class="home-container">
+      <div class="stats-header">
+        <div class="eyebrow eyebrow-dot">Lifetime Stats</div>
+        <h1 class="home-headline stats-title">
+          Your <span class="iri-text">climb history.</span>
+        </h1>
+      </div>
+
+      <div class="stats-card-grid">
+        <div class="stats-card">
+          <div class="numeric" id="totalGames">0</div>
+          <div class="eyebrow">Games Played</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="numeric" id="bestScore">0</div>
+          <div class="eyebrow">Best Score</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="numeric" id="dailyHigh">0</div>
+          <div class="eyebrow">High Score Today</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="numeric" id="weeklyHigh">0</div>
+          <div class="eyebrow">High Score This Week</div>
+        </div>
+      </div>
+
+      <div class="stats-panel">
+        <div class="eyebrow eyebrow-dot">Score Trend</div>
+        <canvas id="scoreChart"></canvas>
+      </div>
+
+      <div class="stats-panel">
+        <div class="eyebrow eyebrow-dot">Recent Games</div>
+
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Difficulty</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="recentGames"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="stats.js"></script>
+  <script>
+    document.getElementById("navHome")?.addEventListener("click", () => {
+      window.location.href = "home.html";
+    });
+
+    document.getElementById("navPractice")?.addEventListener("click", () => {
+      window.location.href = "practice.html";
+    });
+  </script>
+</body>
+</html>
