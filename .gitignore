@@ -1,1 +1,24 @@
+.DS_Store
 .DS_STORE
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Env files (contain SUPABASE_JWT_SECRET — never commit)
+.env
+.env.local
+.env.*.local
+
+# Node (left over from the old backend; safe to keep ignored)
+node_modules/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.claude/
+

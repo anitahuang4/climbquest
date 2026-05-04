@@ -960,3 +960,156 @@ canvas#gameCanvas { display: none; }
   gap: 14px;
   margin-top: 0;
 }
+
+/* ================================================================
+   LOBBY (multiplayer) — entry, waiting room, scoreboard
+   ================================================================ */
+
+/* Two-card entry grid (Create / Join) */
+.lobby-entry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: 48px;
+  width: 100%;
+  max-width: 720px;
+}
+.lobby-entry-card {
+  background: #000;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  text-align: left;
+}
+.lobby-entry-card .primary-btn,
+.lobby-entry-card .secondary-btn { width: 100%; }
+.lobby-entry-text {
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Big copyable room code */
+.room-code {
+  margin-top: 16px;
+  font-family: var(--type-mono);
+  font-weight: 500;
+  font-size: 96px;
+  letter-spacing: .15em;
+  background: var(--grad-iri);
+  background-size: 200% 200%;
+  animation: iri-shift 12s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  cursor: pointer;
+  user-select: all;
+  line-height: 1;
+}
+
+.lobby-section {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 480px;
+  text-align: left;
+}
+
+/* Player list */
+.player-list {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.player-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.player-row:last-child { border-bottom: 0; }
+.player-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--grad-iri); background-size: 200% 200%;
+  animation: iri-shift 6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.player-name { flex: 1; color: var(--ink-2); }
+.player-host-tag {
+  font-family: var(--type-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--ink-3);
+  border: 1px solid var(--line-2);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+/* Live scoreboard panel in match view */
+.scoreboard-panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  align-self: flex-start;
+}
+.scoreboard-list,
+.final-scores {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.scoreboard-row,
+.final-score-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #000;
+  font-size: 14px;
+  transition: background .2s;
+}
+.scoreboard-row.is-me,
+.final-score-row.is-me { background: #0a0a0a; }
+.scoreboard-rank {
+  font-family: var(--type-mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: .15em;
+}
+.scoreboard-name { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scoreboard-score { font-size: 20px; color: var(--ink); }
+
+/* Game-over scores list reuses .final-scores */
+.game-over .final-scores {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* "Back" button reused from practice header */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  font-size: 13px;
+  color: var(--ink-2);
+  transition: border-color .15s, color .15s;
+}
+.back-btn:hover { color: var(--ink); border-color: var(--ink-3); }
