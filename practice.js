@@ -174,6 +174,32 @@ function endGame() {
   answerInput.disabled = true;
   finalScoreEl.textContent = score;
   gameOverEl.style.display = "flex";
+
+  saveGameResult();
+}
+
+async function saveGameResult() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    console.error("No active session. Score not saved.");
+    return;
+  }
+
+  const { error } = await supabase.from("game_results").insert({
+    user_id: session.user.id,
+    score: score,
+    difficulty: difficulty,
+    duration_seconds: 60,
+  });
+
+  if (error) {
+    console.error("Error saving game result:", error.message);
+  } else {
+    console.log("Game result saved successfully.");
+  }
 }
 
 // Play again
