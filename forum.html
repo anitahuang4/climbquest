@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Forum</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .forum-shell {
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .forum-ambient {
+      position: absolute; top: -10%; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(180,163,255,.14), rgba(108,230,224,.07) 45%, transparent 70%);
+      filter: blur(60px); pointer-events: none;
+    }
+    .forum-container {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 100px 32px 80px;
+    }
+    .forum-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .forum-title {
+      font-size: 72px;
+      font-weight: 300;
+      letter-spacing: -.04em;
+      line-height: .9;
+      margin-top: 16px;
+    }
+    .compose-box {
+      background: var(--bg-1);
+      border: 1px solid var(--line-2);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 32px;
+      display: none;
+    }
+    .compose-box.open { display: block; }
+    .compose-title-input {
+      width: 100%;
+      height: 52px;
+      padding: 0 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--line-2);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      font-size: 16px;
+      font-family: var(--type-display);
+      outline: none;
+      transition: border-color .15s;
+      margin-bottom: 12px;
+    }
+    .compose-title-input:focus { border-color: var(--ink-3); }
+    .compose-body-input {
+      width: 100%;
+      min-height: 120px;
+      padding: 14px 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--line-2);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      font-size: 14px;
+      font-family: var(--type-display);
+      outline: none;
+      resize: vertical;
+      transition: border-color .15s;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .compose-body-input:focus { border-color: var(--ink-3); }
+    .compose-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .compose-tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag-btn {
+      height: 30px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line-3);
+      font-family: var(--type-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      cursor: pointer;
+      background: transparent;
+      transition: all .15s;
+    }
+    .tag-btn:hover { border-color: var(--ink-3); color: var(--ink-2); }
+    .tag-btn.selected { border-color: var(--iri-6); color: var(--iri-6); }
+    .compose-actions { display: flex; gap: 10px; }
+    .forum-filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-tag {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      font-family: var(--type-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      cursor: pointer;
+      background: transparent;
+      transition: all .15s;
+    }
+    .filter-tag:hover { border-color: var(--ink-3); color: var(--ink-2); }
+    .filter-tag.active { background: #fff; color: #000; border-color: #fff; }
+    .thread-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .thread-row {
+      background: #000;
+      padding: 22px 24px;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      transition: background .15s;
+      border-bottom: 1px solid var(--line);
+    }
+    .thread-row:last-child { border-bottom: 0; }
+    .thread-row:hover { background: var(--bg-1); }
+    .thread-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .thread-tag {
+      height: 22px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-family: var(--type-mono);
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
+    }
+    .tag-general { color: var(--ink-3); }
+    .tag-tips    { color: var(--iri-4); }
+    .tag-bugs    { color: var(--iri-1); }
+    .tag-ideas   { color: var(--iri-6); }
+    .tag-flex    { color: var(--iri-2); }
+    .thread-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 6px;
+      letter-spacing: -.01em;
+    }
+    .thread-preview {
+      font-size: 13px;
+      color: var(--ink-3);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .thread-meta {
+      font-family: var(--type-mono);
+      font-size: 10px;
+      color: var(--ink-4);
+      letter-spacing: .1em;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .thread-meta-author { color: var(--ink-3); }
+    .thread-row-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .thread-upvote-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      font-family: var(--type-mono);
+      font-size: 11px;
+      color: var(--ink-3);
+      cursor: pointer;
+      background: transparent;
+      transition: all .15s;
+    }
+    .thread-upvote-btn:hover { border-color: var(--iri-4); color: var(--iri-4); }
+    .thread-upvote-btn.voted { border-color: var(--iri-4); color: var(--iri-4); background: rgba(185,245,208,.07); }
+    .thread-empty {
+      background: #000;
+      padding: 64px 24px;
+      text-align: center;
+    }
+    .thread-empty-title {
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--ink-3);
+      margin-bottom: 8px;
+    }
+    .thread-empty-sub {
+      font-family: var(--type-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      color: var(--ink-4);
+      text-transform: uppercase;
+    }
+    .thread-detail {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .thread-detail.open { pointer-events: all; opacity: 1; }
+    .thread-detail-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+    }
+    .thread-detail-panel {
+      position: relative;
+      width: min(720px, 100vw);
+      height: 100vh;
+      background: var(--bg-1);
+      border-left: 1px solid var(--line-2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(40px);
+      transition: transform .25s cubic-bezier(.22,1,.36,1);
+      overflow: hidden;
+    }
+    .thread-detail.open .thread-detail-panel { transform: translateX(0); }
+    .detail-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .detail-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .detail-close {
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      color: var(--ink-3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all .15s;
+      background: transparent;
+    }
+    .detail-close:hover { color: var(--ink); border-color: var(--ink-3); }
+    .detail-thread-title {
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: -.02em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .detail-thread-meta {
+      font-family: var(--type-mono);
+      font-size: 10px;
+      color: var(--ink-4);
+      letter-spacing: .1em;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .detail-thread-body {
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.7;
+      margin-top: 16px;
+      padding: 0 28px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .detail-replies {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 28px;
+    }
+    .detail-replies::-webkit-scrollbar { width: 4px; }
+    .detail-replies::-webkit-scrollbar-track { background: transparent; }
+    .detail-replies::-webkit-scrollbar-thumb { background: var(--line-3); border-radius: 2px; }
+    .reply-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .reply-item:last-child { border-bottom: 0; }
+    .reply-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .reply-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--grad-iri);
+      background-size: 200% 200%;
+      animation: iri-shift 8s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .reply-author { font-size: 13px; font-weight: 500; color: var(--ink-2); }
+    .reply-time {
+      font-family: var(--type-mono);
+      font-size: 10px;
+      color: var(--ink-4);
+      letter-spacing: .08em;
+      margin-left: auto;
+    }
+    .reply-body { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding-left: 38px; }
+    .reply-empty {
+      text-align: center;
+      padding: 40px 0;
+      font-family: var(--type-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      color: var(--ink-4);
+      text-transform: uppercase;
+    }
+    .detail-compose {
+      padding: 16px 28px 20px;
+      border-top: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .detail-compose-inner { display: flex; gap: 10px; align-items: flex-end; }
+    .reply-input {
+      flex: 1;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 12px 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--line-2);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      font-size: 13px;
+      font-family: var(--type-display);
+      outline: none;
+      resize: none;
+      transition: border-color .15s;
+      line-height: 1.5;
+    }
+    .reply-input:focus { border-color: var(--ink-3); }
+    .skeleton-row {
+      background: #000;
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .skeleton-line {
+      height: 12px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--line) 25%, var(--line-2) 50%, var(--line) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.4s infinite;
+      margin-bottom: 10px;
+    }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.mid { width: 65%; }
+    @keyframes skeleton-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-mark"></div>
+      <span>ClimbQuest</span>
+      <span class="nav-version">v1.2</span>
+    </div>
+    <div class="nav-links">
+      <a id="navHome">Home</a>
+      <a id="navPractice">Practice</a>
+      <a id="navStats">Leaderboard</a>
+      <a class="active">Forum</a>
+      <a id="navProfile">Profile</a>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2);">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--grad-iri); background-size: 200% 200%; animation: iri-shift 6s ease-in-out infinite;"></div>
+        <span id="navUser">climber</span>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Forum Shell -->
+  <div class="forum-shell">
+    <div class="forum-ambient"></div>
+    <div class="forum-container">
+
+      <!-- Header -->
+      <div class="forum-header">
+        <div class="forum-header-left">
+          <div class="eyebrow eyebrow-dot">Community</div>
+          <h1 class="forum-title"><span class="iri-text">Forum</span></h1>
+        </div>
+        <button id="newThreadBtn" class="primary-btn" style="height: 48px; padding: 0 22px; font-size: 14px;">
+          New post
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+
+      <!-- Compose box -->
+      <div class="compose-box" id="composeBox">
+        <div class="eyebrow" style="margin-bottom: 16px;">New post</div>
+        <input class="compose-title-input" id="composeTitle" type="text" placeholder="Title your post…" maxlength="120" />
+        <textarea class="compose-body-input" id="composeBody" placeholder="Share a tip, question, flex, or bug report…"></textarea>
+        <div class="compose-footer">
+          <div class="compose-tag-row" id="composeTags">
+            <button class="tag-btn selected" data-tag="general">General</button>
+            <button class="tag-btn" data-tag="tips">Tips</button>
+            <button class="tag-btn" data-tag="bugs">Bug</button>
+            <button class="tag-btn" data-tag="ideas">Ideas</button>
+            <button class="tag-btn" data-tag="flex">Flex 🏆</button>
+          </div>
+          <div class="compose-actions">
+            <button class="secondary-btn" id="composeCancelBtn" style="height: 40px; font-size: 13px; padding: 0 18px;">Cancel</button>
+            <button class="primary-btn" id="composeSubmitBtn" style="height: 40px; font-size: 13px; padding: 0 18px;">Post</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tag filters -->
+      <div class="forum-filters" id="filterRow">
+        <button class="filter-tag active" data-filter="all">All</button>
+        <button class="filter-tag" data-filter="general">General</button>
+        <button class="filter-tag" data-filter="tips">Tips</button>
+        <button class="filter-tag" data-filter="bugs">Bug</button>
+        <button class="filter-tag" data-filter="ideas">Ideas</button>
+        <button class="filter-tag" data-filter="flex">Flex 🏆</button>
+      </div>
+
+      <!-- Thread list -->
+      <div class="thread-list" id="threadList">
+        <div class="skeleton-row" id="skeletonA">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line mid"></div>
+          <div class="skeleton-line" style="width: 80%;"></div>
+        </div>
+        <div class="skeleton-row" id="skeletonB">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line" style="width: 55%;"></div>
+          <div class="skeleton-line" style="width: 75%;"></div>
+        </div>
+        <div class="skeleton-row" id="skeletonC">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line mid"></div>
+          <div class="skeleton-line" style="width: 70%;"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="home-footer">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="nav-mark" style="width: 14px; height: 14px;"></div>
+          ClimbQuest © 2026
+        </div>
+        <div style="display: flex; gap: 32px;">
+          <span>Team 7 · CS 160</span>
+          <span>San José State · Spring '26</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Thread Detail Panel -->
+  <div class="thread-detail" id="threadDetail">
+    <div class="thread-detail-backdrop" id="detailBackdrop"></div>
+    <div class="thread-detail-panel">
+      <div class="detail-header">
+        <div class="detail-header-top">
+          <div class="eyebrow eyebrow-dot" id="detailTag">General</div>
+          <button class="detail-close" id="detailClose">✕</button>
+        </div>
+        <div class="detail-thread-title" id="detailTitle">—</div>
+        <div class="detail-thread-meta" id="detailMeta">
+          <span id="detailAuthor">—</span>
+          <span id="detailDate">—</span>
+          <span id="detailUpvotes">0 ▲</span>
+        </div>
+      </div>
+
+      <div class="detail-thread-body" id="detailBody">—</div>
+
+      <div class="detail-replies" id="detailReplies">
+        <div class="reply-empty">Loading replies…</div>
+      </div>
+
+      <div class="detail-compose">
+        <div class="detail-compose-inner">
+          <textarea class="reply-input" id="replyInput" rows="1" placeholder="Write a reply…"></textarea>
+          <button class="primary-btn" id="replySubmitBtn" style="height: 44px; font-size: 13px; padding: 0 18px; flex-shrink: 0;">Reply</button>
+        </div>
+        <p class="message" id="replyMessage"></p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="forum.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('navHome')?.addEventListener('click', () => location.href = 'home.html');
+      document.getElementById('navPractice')?.addEventListener('click', () => location.href = 'practice.html');
+      document.getElementById('navStats')?.addEventListener('click', () => location.href = 'stats.html');
+      document.getElementById('navProfile')?.addEventListener('click', () => location.href = 'profile.html');
+    });
+  </script>
+</body>
+</html>

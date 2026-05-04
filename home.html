@@ -17,6 +17,7 @@
       <a class="active">Home</a>
       <a id="navPractice">Practice</a>
       <a id="navStats">Leaderboard</a>
+      <a id="navForum">Forum</a>
       <a id="navProfile">Profile</a>
     </div>
     <div style="display: flex; gap: 12px; align-items: center;">
@@ -147,8 +148,9 @@
       const target = document.getElementById('welcomeText');
       if (target) observer.observe(target, { childList: true, characterData: true, subtree: true });
 
-      const navPractice = document.getElementById('navPractice');
-      if (navPractice) navPractice.addEventListener('click', () => { window.location.href = 'practice.html'; });
+      document.getElementById('navPractice')?.addEventListener('click', () => { window.location.href = 'practice.html'; });
+      document.getElementById('navStats')?.addEventListener('click', () => { window.location.href = 'stats.html'; });
+      document.getElementById('navForum')?.addEventListener('click', () => { window.location.href = 'forum.html'; });
     });
   </script>
 </body>
