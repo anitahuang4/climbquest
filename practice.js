@@ -1,10 +1,6 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { supabase } from "./supabase.js";
 
-const supabaseUrl = "https://xyocwmfcfoisxqqxprpi.supabase.co";
-const supabaseKey = "sb_publishable_T0j-7LSk51M5H9qCELSbRA_x7yMLOXA";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-const BACKEND = "http://localhost:3000";
+const BACKEND = "";
 
 // Game state
 let currentAnswer = null;

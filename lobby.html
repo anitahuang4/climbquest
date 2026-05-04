@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Lobby</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ====== Top nav (shared with home) ====== -->
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-mark"></div>
+      <span>ClimbQuest</span>
+      <span class="nav-version">v1.2</span>
+    </div>
+    <div class="nav-links">
+      <a id="navHome">Home</a>
+      <a id="navPractice">Practice</a>
+      <a class="active">Lobby</a>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2);">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--grad-iri); background-size: 200% 200%; animation: iri-shift 6s ease-in-out infinite;"></div>
+        <span id="navUser">climber</span>
+      </div>
+      <a class="back-btn" href="home.html">← Menu</a>
+    </div>
+  </div>
+
+  <!-- ====== Entry view: create or join ====== -->
+  <div class="home-shell" id="entryView">
+    <div class="home-ambient"></div>
+    <div class="home-container">
+      <div class="home-hero">
+        <div class="eyebrow eyebrow-dot home-eyebrow-badge">Multiplayer · room codes</div>
+
+        <div class="home-monkey-wrap">
+          <div data-monkey data-size="240"></div>
+        </div>
+
+        <h1 class="home-headline">
+          Climb<br/>
+          <span class="iri-text">together.</span>
+        </h1>
+        <p class="home-sub">Create a room and share the code, or jump into one.</p>
+
+        <div class="lobby-entry-grid">
+
+          <div class="lobby-entry-card">
+            <div class="eyebrow eyebrow-dot">Create</div>
+            <p class="lobby-entry-text">Spin up a new room. You'll be the host — pick the difficulty, start when ready.</p>
+            <button id="createBtn" class="primary-btn">
+              Create room
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <div class="lobby-entry-card">
+            <div class="eyebrow eyebrow-dot">Join</div>
+            <p class="lobby-entry-text">Got a code? Drop it in.</p>
+            <input type="text" id="joinCode" placeholder="ABC123" maxlength="6" autocomplete="off" style="text-transform: uppercase; letter-spacing: .25em; font-family: var(--type-mono); text-align: center;" />
+            <button id="joinBtn" class="secondary-btn">Join room</button>
+          </div>
+
+        </div>
+
+        <p id="entryMessage" class="message"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Waiting room ====== -->
+  <div class="home-shell hidden" id="waitingView">
+    <div class="home-ambient"></div>
+    <div class="home-container">
+
+      <div class="home-hero">
+        <div class="eyebrow eyebrow-dot home-eyebrow-badge"><span id="hostBadge">Host</span></div>
+
+        <div class="eyebrow" style="margin-top: 8px;">Room code</div>
+        <div class="room-code" id="roomCode" title="Click to copy">———</div>
+        <div class="eyebrow" id="copyHint" style="opacity:.6;">Click to copy</div>
+
+        <div class="lobby-section">
+          <div class="eyebrow" style="margin-bottom: 12px;">Players</div>
+          <ul class="player-list" id="playerList"></ul>
+        </div>
+
+        <div class="lobby-section host-only" id="difficultyBar" style="display:none;">
+          <div class="eyebrow" style="margin-bottom: 12px;">Difficulty (host picks)</div>
+          <div class="difficulty-bar" style="margin: 0;">
+            <button class="diff-btn active" data-level="easy">Novice</button>
+            <button class="diff-btn" data-level="medium">Climber</button>
+            <button class="diff-btn" data-level="hard">Apex</button>
+          </div>
+        </div>
+
+        <div class="lobby-section non-host-only" id="difficultyDisplay" style="display:none;">
+          <div class="eyebrow" style="margin-bottom: 8px;">Difficulty</div>
+          <div class="numeric" id="difficultyText" style="font-size: 24px;">Novice</div>
+          <div class="eyebrow" style="margin-top: 8px; opacity:.5;">Waiting for host to start…</div>
+        </div>
+
+        <div class="home-actions" style="margin-top: 36px;">
+          <button id="startBtn" class="primary-btn host-only" style="display:none;">
+            Start game
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+          <button id="leaveBtn" class="secondary-btn">Leave room</button>
+        </div>
+
+        <p id="waitingMessage" class="message"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Match view (in-place; reuses practice-mode look) ====== -->
+  <div class="hidden" id="matchView">
+    <div class="match-hud">
+      <div class="match-hud-left">
+        <div class="nav-mark" style="width: 18px; height: 18px;"></div>
+        <div class="eyebrow">Multiplayer · <span id="matchDiff">Novice</span> · <span id="matchCode">———</span></div>
+      </div>
+      <div class="match-hud-right">
+        <div class="hud-stat">
+          <div class="eyebrow">Streak</div>
+          <div class="hud-stat-value">× <span id="streakDisplay">0</span></div>
+        </div>
+        <div class="hud-stat">
+          <div class="eyebrow">Score</div>
+          <div class="hud-stat-value"><span id="scoreDisplay">0</span></div>
+        </div>
+        <div class="timer" id="timer">60</div>
+      </div>
+    </div>
+
+    <div class="match-shell">
+      <div class="match-ambient"></div>
+
+      <div class="match-body">
+
+        <div class="iri-tree-wrap">
+          <div class="iri-tree" id="iriTree">
+            <div class="iri-tree-track"></div>
+            <div class="iri-tree-finish" id="treeFinish">0</div>
+            <div class="iri-tree-monkey" id="treeMonkey" style="top: 480px;">
+              <div data-monkey data-size="64"></div>
+            </div>
+          </div>
+          <div class="iri-tree-label">
+            <div class="eyebrow">P01</div>
+            <div class="iri-tree-label-name">YOU</div>
+            <div class="iri-tree-label-score" id="treeScore">000</div>
+          </div>
+        </div>
+
+        <div class="match-stage">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+            <div class="question-eyebrow">Solve</div>
+            <div class="question-text" id="questionText">? × ?</div>
+          </div>
+
+          <div class="answer-area">
+            <input type="number" id="answerInput" autocomplete="off" placeholder="——" />
+            <button class="submit-btn" id="submitBtn">Enter</button>
+          </div>
+
+          <p class="feedback" id="feedback"></p>
+
+          <div class="game-over" id="gameOver">
+            <div class="eyebrow eyebrow-dot">Round complete</div>
+            <h2>Time's up.</h2>
+            <ul class="final-scores" id="finalScores"></ul>
+            <div class="home-actions" style="margin-top: 24px; flex-direction: row;">
+              <button id="rematchBtn" class="primary-btn host-only" style="display:none;">Rematch</button>
+              <button id="backToLobbyBtn" class="secondary-btn">Back to lobby</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== Live multiplayer scoreboard ====== -->
+        <div class="scoreboard-panel">
+          <div class="eyebrow" style="margin-bottom: 16px;">Live standings</div>
+          <ul class="scoreboard-list" id="scoreboardList"></ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="monkey.js"></script>
+  <script type="module" src="lobby.js"></script>
+
+  <!-- ===== Climbing tree rungs (reused from practice.html) ===== -->
+  <script>
+    (function () {
+      const RUNGS = 12;
+      const TREE_HEIGHT = 520;
+      const tree = document.getElementById('iriTree');
+      const treeFinish = document.getElementById('treeFinish');
+      const treeMonkey = document.getElementById('treeMonkey');
+      const treeScore = document.getElementById('treeScore');
+      const TARGET = 20;
+
+      for (let i = 0; i < RUNGS; i++) {
+        const t = i / (RUNGS - 1);
+        const top = t * (TREE_HEIGHT - 60) + 20;
+        const rung = document.createElement('div');
+        rung.className = 'iri-tree-rung';
+        rung.style.top = top + 'px';
+        rung.dataset.threshold = (1 - t).toFixed(3);
+        tree.appendChild(rung);
+      }
+      const rungs = tree.querySelectorAll('.iri-tree-rung');
+
+      function setProgress(score) {
+        const progress = Math.min(1, score / TARGET);
+        rungs.forEach(r => {
+          const threshold = parseFloat(r.dataset.threshold);
+          r.classList.toggle('reached', threshold <= progress + 0.001);
+        });
+        const monkeyY = (1 - progress) * (TREE_HEIGHT - 60) + 20;
+        treeMonkey.style.top = monkeyY + 'px';
+
+        if (progress >= 0.999) {
+          treeFinish.classList.add('reached');
+          treeFinish.textContent = '▲';
+        } else {
+          treeFinish.classList.remove('reached');
+          treeFinish.textContent = Math.round(progress * 100);
+        }
+        treeScore.textContent = String(score).padStart(3, '0');
+      }
+      setProgress(0);
+
+      const scoreEl = document.getElementById('scoreDisplay');
+      const observer = new MutationObserver(() => {
+        const v = parseInt(scoreEl.textContent || '0', 10);
+        if (!isNaN(v)) setProgress(v);
+      });
+      observer.observe(scoreEl, { childList: true, characterData: true, subtree: true });
+    })();
+
+    // Streak counter (mirrors practice.html behavior)
+    (function () {
+      const feedback = document.getElementById('feedback');
+      const streakEl = document.getElementById('streakDisplay');
+      let streak = 0;
+      const observer = new MutationObserver(() => {
+        const txt = (feedback.textContent || '').toLowerCase();
+        if (txt.startsWith('correct')) streak++;
+        else if (txt.startsWith('wrong')) streak = 0;
+        else return;
+        streakEl.textContent = streak;
+      });
+      observer.observe(feedback, { childList: true, characterData: true, subtree: true });
+    })();
+
+    // Nav links
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('navHome')?.addEventListener('click', () => location.href = 'home.html');
+      document.getElementById('navPractice')?.addEventListener('click', () => location.href = 'practice.html');
+    });
+  </script>
+</body>
+</html>

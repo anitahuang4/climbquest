@@ -1,9 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const supabaseUrl = "https://xyocwmfcfoisxqqxprpi.supabase.co";
-const supabaseKey = "sb_publishable_T0j-7LSk51M5H9qCELSbRA_x7yMLOXA";
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from "./supabase.js";
 
 const authForm = document.getElementById("authForm");
 const loginTab = document.getElementById("loginTab");
@@ -123,7 +118,7 @@ if (welcomeText) {
 
 if (joinLobbyBtn) {
   joinLobbyBtn.addEventListener("click", () => {
-    alert("Join Lobby clicked (next step: multiplayer)");
+    window.location.href = "lobby.html";
   });
 }
 
