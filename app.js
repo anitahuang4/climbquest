@@ -137,6 +137,5 @@ if (logoutBtn) {
 
 if (statsBtn) {
   statsBtn.addEventListener("click", () => {
-    alert("User Statistics clicked (next step: stats page)");
-  });
+  window.location.href = "stats.html";  });
 }
