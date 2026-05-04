@@ -107,9 +107,22 @@ function renderScoreboard(scores) {
 }
 
 function send(msg) {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(msg));
+  if (!ws) {
+    setEntryError("Not connected yet — refresh the page.");
+    console.warn("[lobby] send before WS exists:", msg);
+    return;
   }
+  if (ws.readyState === WebSocket.CONNECTING) {
+    setEntryError("Still connecting — try again in a second.");
+    console.warn("[lobby] send while WS connecting:", msg);
+    return;
+  }
+  if (ws.readyState !== WebSocket.OPEN) {
+    setEntryError("Disconnected from server. Refresh to reconnect.");
+    console.warn("[lobby] send on non-open WS (state " + ws.readyState + "):", msg);
+    return;
+  }
+  ws.send(JSON.stringify(msg));
 }
 
 function setEntryError(text) {
@@ -338,16 +351,32 @@ async function init() {
   navUserEl.textContent = myUsername;
 
   const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
-  ws = new WebSocket(`${wsProto}//${location.host}/ws/lobby?token=${encodeURIComponent(session.access_token)}`);
+  const wsUrl = `${wsProto}//${location.host}/ws/lobby?token=${encodeURIComponent(session.access_token)}`;
+  console.log("[lobby] connecting to", wsUrl);
+  setEntryError("Connecting…");
+  ws = new WebSocket(wsUrl);
 
+  ws.addEventListener("open", () => {
+    console.log("[lobby] WS open");
+    setEntryError("");
+  });
   ws.addEventListener("message", (e) => {
-    try { handleMessage(JSON.parse(e.data)); } catch {}
+    console.log("[lobby] <-", e.data);
+    try { handleMessage(JSON.parse(e.data)); } catch (err) {
+      console.error("[lobby] bad JSON from server:", err);
+    }
   });
-  ws.addEventListener("close", () => {
-    waitingMessage.textContent = "Disconnected from server.";
+  ws.addEventListener("close", (e) => {
+    console.warn("[lobby] WS closed", e.code, e.reason);
+    const reason = e.reason ? `: ${e.reason}` : "";
+    if (e.code === 4401) setEntryError(`Auth failed${reason}. Sign out and sign back in.`);
+    else if (e.code === 1006) setEntryError("Server not reachable. Is uvicorn running on port 3000?");
+    else setEntryError(`Disconnected (code ${e.code}${reason}).`);
+    waitingMessage.textContent = `Disconnected (code ${e.code}${reason}).`;
   });
-  ws.addEventListener("error", () => {
-    setEntryError("Could not reach server.");
+  ws.addEventListener("error", (e) => {
+    console.error("[lobby] WS error", e);
+    setEntryError("WebSocket error — check the browser console.");
   });
 }
 
