@@ -190,6 +190,8 @@ async def lobby_ws(ws: WebSocket, token: str = Query(...)):
                 ok = questions.is_correct(player_answer, correct)
                 if ok:
                     player.score += 1
+                else:
+                    player.score = max(0, player.score - 1)
                 await send(ws, {
                     "type": "answer_result",
                     "question_id": qid,

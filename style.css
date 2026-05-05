@@ -515,7 +515,10 @@ body::after {
 
 /* HUD */
 .match-hud {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  /* z-index 200 so the HUD (with the timer) sits above the lobby's .nav
+     (z-index 100). Without this, the nav covers the match-hud and the
+     timer becomes invisible during a multiplayer match. */
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   height: 72px;
   padding: 0 32px;
   background: rgba(0,0,0,.7);

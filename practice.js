@@ -134,7 +134,13 @@ async function submitAnswer() {
     animateMonkey("up");
     setTimeout(loadQuestion, 600);
   } else {
-    feedback.textContent = `Wrong! The answer was ${currentAnswer}`;
+    const prevScore = score;
+    score = Math.max(0, score - 1);
+    scoreDisplay.textContent = score;
+    const lost = prevScore - score;
+    feedback.textContent = lost
+      ? `Wrong! −1 · Answer was ${currentAnswer}`
+      : `Wrong! Answer was ${currentAnswer}`;
     feedback.className = "feedback wrong";
     answerInput.classList.add("incorrect");
     answerInput.disabled = true;
