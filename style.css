@@ -1202,232 +1202,39 @@ canvas#gameCanvas { display: none; }
   }
 }
 
-/* ===== Profile Page ===== */
-.profile-header { margin-top: 16px; }
-.profile-monkey-wrap {
-  margin: 32px auto 12px;
+/* ===== Multiplayer Game Over Actions ===== */
+.game-over .home-actions {
   display: flex;
   justify-content: center;
-  position: relative;
-}
-.profile-monkey-wrap::before {
-  content: '';
-  position: absolute; inset: -40px;
-  background: radial-gradient(circle, rgba(108, 230, 224, .14), transparent 60%);
-  filter: blur(40px);
-  pointer-events: none;
-}
-.profile-form {
-  margin-top: 36px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.profile-form input:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-}
-.profile-field { display: flex; flex-direction: column; gap: 8px; }
-.profile-hint {
-  font-family: var(--type-mono);
-  font-size: 11px;
-  letter-spacing: .08em;
-  color: var(--ink-4);
-  margin-top: 6px;
-}
-.profile-divider {
-  height: 1px;
-  background: var(--line);
-  margin: 48px 0 32px;
-}
-.profile-form .primary-btn,
-.profile-form .secondary-btn {
-  align-self: flex-start;
-  margin-top: 8px;
-}
-
-/* ===== Leaderboard Page ===== */
-.leaderboard-header {
-  margin-top: 16px;
-  margin-bottom: 32px;
-  text-align: left;
-}
-.leaderboard-filter-bar {
-  display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 14px;
   flex-wrap: wrap;
 }
-.leaderboard-spacer {
-  flex: 0 0 24px;
-  height: 1px;
-}
 
-/* Re-declare .filter-tag here so leaderboard (and any other page) picks it up
-   without depending on forum.html's inline <style> block. */
-.filter-tag {
-  height: 32px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line-2);
-  font-family: var(--type-mono);
-  font-size: 10px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  cursor: pointer;
-  background: transparent;
-  transition: all .15s;
-}
-.filter-tag:hover { border-color: var(--ink-3); color: var(--ink-2); }
-.filter-tag.active { background: #fff; color: #000; border-color: #fff; }
-
-.leaderboard-panel {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: rgba(255, 255, 255, .02);
-}
-.leaderboard-row {
-  display: grid;
-  grid-template-columns: 80px 1fr 100px 100px;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--line);
-  font-size: 14px;
-  transition: background .15s;
-}
-.leaderboard-row:last-child { border-bottom: 0; }
-.leaderboard-row.is-me { background: rgba(108, 230, 224, .04); }
-.leaderboard-row-head {
-  background: var(--bg-1);
-  font-family: var(--type-mono);
-  font-size: 10px;
-  letter-spacing: .15em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.leaderboard-rank-col { display: flex; align-items: center; }
-.leaderboard-name-col {
-  color: var(--ink-2);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.leaderboard-stat-col {
-  text-align: right;
-  color: var(--ink-2);
-}
-.leaderboard-best {
-  font-size: 18px;
-  color: var(--ink);
-  font-weight: 400;
-}
-.leaderboard-rank-num {
-  font-family: var(--type-mono);
-  color: var(--ink-3);
-  font-size: 13px;
-  letter-spacing: .1em;
-}
-.leaderboard-medal {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--type-mono);
-  font-size: 12px;
-  font-weight: 600;
-  color: #000;
-}
-.leaderboard-medal.medal-1 { background: linear-gradient(135deg, #FFE9A8, #FFB86B); }
-.leaderboard-medal.medal-2 { background: linear-gradient(135deg, #d4d4d4, #8a8a8a); color: #000; }
-.leaderboard-medal.medal-3 { background: linear-gradient(135deg, #FF8FD0, #B4A3FF); }
-.leaderboard-you-tag {
-  font-family: var(--type-mono);
-  font-size: 9px;
-  letter-spacing: .15em;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--iri-5);
-  color: var(--iri-5);
-}
-.leaderboard-empty {
-  padding: 56px 24px;
-  text-align: center;
-  color: var(--ink-3);
-  font-family: var(--type-mono);
-  font-size: 12px;
-  letter-spacing: .1em;
-}
-
-/* ===== Multi-lane match view (multiple monkeys climbing in parallel) ===== */
-.iri-tree-multi {
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  height: auto;
+.game-over .primary-btn,
+.game-over .secondary-btn,
+.game-over .stats-btn {
   width: auto;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-.iri-tree-multi::-webkit-scrollbar { height: 4px; }
-.iri-tree-multi::-webkit-scrollbar-track { background: transparent; }
-.iri-tree-multi::-webkit-scrollbar-thumb { background: var(--line-3); border-radius: 2px; }
-.iri-tree-lane {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-}
-.iri-tree-lane .iri-tree {
-  width: 88px;
-  height: 520px;
-}
-.iri-tree-lane .iri-tree-rung {
-  width: 22px;
-}
-.iri-tree-lane .iri-tree-finish {
-  width: 30px; height: 30px;
-  font-size: 10px;
-}
-.iri-tree-lane .iri-tree-label {
-  margin-top: 12px;
-  text-align: center;
-  max-width: 96px;
-}
-.iri-tree-lane .iri-tree-label-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ink-3);
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 96px;
-}
-.iri-tree-lane .iri-tree-label-score {
-  font-size: 18px;
-  margin-top: 2px;
-}
-.iri-tree-lane.is-me .iri-tree-label-name {
-  color: var(--ink);
-}
-.iri-tree-lane.is-me .iri-tree-track {
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(108,230,224,.35) 40%, rgba(108,230,224,.35) 60%, rgba(255,255,255,.08));
-}
-.iri-tree-lane .iri-monkey {
-  pointer-events: none;
+  min-width: 160px;
+  padding: 0 24px;
 }
 
-/* When the match-body holds the multi-lane wrap, let the lane column grow
-   wider than the original 220px reserved for the single tree. */
-.match-body:has(.iri-tree-multi) {
-  grid-template-columns: auto 1fr;
+.game-over .stats-btn {
+  background: #ffffff;
+  color: #000000;
+}
+
+.game-over .stats-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(255,255,255,.12);
+}
+
+.game-over .secondary-btn {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line-3);
+}
+
+.game-over .secondary-btn:hover {
+  border-color: var(--ink-3);
 }

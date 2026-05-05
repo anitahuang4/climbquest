@@ -34,18 +34,16 @@ const timerEl = document.getElementById("timer");
 const gameOverEl = document.getElementById("gameOver");
 const finalScoresEl = document.getElementById("finalScores");
 const rematchBtn = document.getElementById("rematchBtn");
-const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 const scoreboardListEl = document.getElementById("scoreboardList");
+const statsAfterGameBtn = document.getElementById("statsAfterGameBtn");
+const homeAfterGameBtn = document.getElementById("homeAfterGameBtn");
+
 const treeWrap = document.getElementById("treeWrap");
 
-// ----- Climbing tree (multi-lane) -----
-// One lane per player. Each lane has its own rungs, monkey, and score label.
-// Updated from `score_update` messages so all clients see all monkeys move.
 const TREE_RUNGS = 12;
 const TREE_HEIGHT = 520;
-const TREE_TARGET = 20; // matches the original single-lane target
+const TREE_TARGET = 20;
 
-// pid -> { lane, monkey, scoreEl, finishEl, rungs, hueOffset }
 let lanes = new Map();
 
 let ws = null;
@@ -57,6 +55,7 @@ let currentDifficulty = "easy";
 let currentQuestionId = null;
 let players = [];
 let timerInterval = null;
+let resultSaved = false;
 
 function show(view) {
   entryView.classList.toggle("hidden", view !== "entry");
@@ -83,6 +82,7 @@ function setDifficultyUI(diff) {
 
 function renderPlayers() {
   playerListEl.innerHTML = "";
+
   for (const p of players) {
     const li = document.createElement("li");
     li.className = "player-row";
@@ -128,19 +128,16 @@ function renderScoreboard(scores) {
 function send(msg) {
   if (!ws) {
     setEntryError("Not connected yet — refresh the page.");
-    console.warn("[lobby] send before WS exists:", msg);
     return;
   }
 
   if (ws.readyState === WebSocket.CONNECTING) {
     setEntryError("Still connecting — try again in a second.");
-    console.warn("[lobby] send while WS connecting:", msg);
     return;
   }
 
   if (ws.readyState !== WebSocket.OPEN) {
     setEntryError("Disconnected from server. Refresh to reconnect.");
-    console.warn("[lobby] send on non-open WS (state " + ws.readyState + "):", msg);
     return;
   }
 
@@ -171,6 +168,7 @@ function startCountdown(duration) {
 }
 
 function resetMatchUI() {
+  resultSaved = false;
   scoreDisplay.textContent = "0";
   feedback.textContent = "";
   feedback.className = "feedback";
@@ -181,21 +179,55 @@ function resetMatchUI() {
   questionText.textContent = "? × ?";
 }
 
+async function saveMultiplayerResult(finalScores) {
+  if (resultSaved) return;
+  resultSaved = true;
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    console.error("No active session. Multiplayer score not saved.");
+    return;
+  }
+
+  const myResult = finalScores.find((p) => p.player_id === myId);
+
+  if (!myResult) {
+    console.error("Could not find current user's score in final scores.");
+    return;
+  }
+
+  const { error } = await supabase.from("game_results").insert({
+    user_id: session.user.id,
+    score: myResult.score,
+    difficulty: currentDifficulty,
+    duration_seconds: 60,
+    mode: "multiplayer",
+  });
+
+  if (error) {
+    console.error("Error saving multiplayer score:", error.message);
+  } else {
+    console.log("Multiplayer score saved successfully.");
+  }
+}
+
 function buildLanes() {
+  if (!treeWrap) return;
+
   treeWrap.innerHTML = "";
   lanes = new Map();
 
-  // Local user's lane is always rendered first; everyone else follows in
-  // join order. The visual hue is offset per-lane so the monkeys are
-  // visually distinguishable.
   const ordered = [
-    ...players.filter(p => p.id === myId),
-    ...players.filter(p => p.id !== myId),
+    ...players.filter((p) => p.id === myId),
+    ...players.filter((p) => p.id !== myId),
   ];
 
   ordered.forEach((p, idx) => {
     const isMe = p.id === myId;
-    const hue = (idx * 47) % 360; // spread hues across lanes
+    const hue = (idx * 47) % 360;
 
     const lane = document.createElement("div");
     lane.className = "iri-tree-lane" + (isMe ? " is-me" : "");
@@ -214,27 +246,30 @@ function buildLanes() {
     tree.appendChild(finish);
 
     const rungs = [];
+
     for (let i = 0; i < TREE_RUNGS; i++) {
       const t = i / (TREE_RUNGS - 1);
       const top = t * (TREE_HEIGHT - 60) + 20;
+
       const rung = document.createElement("div");
       rung.className = "iri-tree-rung";
       rung.style.top = top + "px";
       rung.dataset.threshold = (1 - t).toFixed(3);
+
       tree.appendChild(rung);
       rungs.push(rung);
     }
 
     const monkeyHolder = document.createElement("div");
     monkeyHolder.className = "iri-tree-monkey";
-    monkeyHolder.style.top = (TREE_HEIGHT - 40) + "px";
+    monkeyHolder.style.top = TREE_HEIGHT - 40 + "px";
 
     const monkey = document.createElement("div");
     monkey.dataset.monkey = "";
     monkey.dataset.size = "56";
     monkey.dataset.hue = String(hue);
-    monkeyHolder.appendChild(monkey);
 
+    monkeyHolder.appendChild(monkey);
     tree.appendChild(monkeyHolder);
 
     const label = document.createElement("div");
@@ -270,8 +305,6 @@ function buildLanes() {
     });
   });
 
-  // Mount monkeys (monkey.js auto-mounts on DOMContentLoaded; we need a
-  // manual call for elements created after that).
   if (window.ClimbQuestMonkey?.mount) {
     window.ClimbQuestMonkey.mount();
   }
@@ -280,11 +313,14 @@ function buildLanes() {
 function setLaneProgress(pid, score) {
   const entry = lanes.get(pid);
   if (!entry) return;
+
   const progress = Math.min(1, score / TREE_TARGET);
-  entry.rungs.forEach(r => {
+
+  entry.rungs.forEach((r) => {
     const threshold = parseFloat(r.dataset.threshold);
     r.classList.toggle("reached", threshold <= progress + 0.001);
   });
+
   const monkeyY = (1 - progress) * (TREE_HEIGHT - 60) + 20;
   entry.monkey.style.top = monkeyY + "px";
 
@@ -295,6 +331,7 @@ function setLaneProgress(pid, score) {
     entry.finishEl.classList.remove("reached");
     entry.finishEl.textContent = Math.round(progress * 100);
   }
+
   entry.scoreEl.textContent = String(score).padStart(3, "0");
 }
 
@@ -358,9 +395,11 @@ function handleMessage(msg) {
       resetMatchUI();
       show("match");
       buildLanes();
-      // Everyone starts at zero — paint that into the lanes immediately so
-      // monkeys all start at the bottom of the climb.
-      for (const p of players) setLaneProgress(p.id, 0);
+
+      for (const p of players) {
+        setLaneProgress(p.id, 0);
+      }
+
       answerInput.focus();
       startCountdown(msg.duration || 60);
 
@@ -421,13 +460,14 @@ function handleMessage(msg) {
       saveMultiplayerResult(msg.final_scores);
 
       finalScoresEl.innerHTML = "";
+
       msg.final_scores.forEach((p, i) => {
         const li = document.createElement("li");
         li.className = "final-score-row" + (p.player_id === myId ? " is-me" : "");
 
         li.innerHTML = `
           <span class="scoreboard-rank">${i + 1}</span>
-          <span class="scoreboard-name">${p.username}</span>
+          <span class="scoreboard-name">${p.username}${p.player_id === myId ? " (you)" : ""}</span>
           <span class="scoreboard-score numeric">${p.score}</span>
         `;
 
@@ -523,8 +563,11 @@ rematchBtn.addEventListener("click", () => {
   send({ type: "start_game" });
 });
 
-backToLobbyBtn.addEventListener("click", () => {
-  send({ type: "leave_room" });
+statsAfterGameBtn?.addEventListener("click", () => {
+  location.href = "stats.html";
+});
+
+homeAfterGameBtn?.addEventListener("click", () => {
   location.href = "home.html";
 });
 
