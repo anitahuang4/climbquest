@@ -34,8 +34,9 @@ const timerEl = document.getElementById("timer");
 const gameOverEl = document.getElementById("gameOver");
 const finalScoresEl = document.getElementById("finalScores");
 const rematchBtn = document.getElementById("rematchBtn");
-const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 const scoreboardListEl = document.getElementById("scoreboardList");
+const statsAfterGameBtn = document.getElementById("statsAfterGameBtn");
+const homeAfterGameBtn = document.getElementById("homeAfterGameBtn");
 
 let ws = null;
 let myId = null;
@@ -46,6 +47,7 @@ let currentDifficulty = "easy";
 let currentQuestionId = null;
 let players = [];
 let timerInterval = null;
+let resultSaved = false;
 
 function show(view) {
   entryView.classList.toggle("hidden", view !== "entry");
@@ -72,6 +74,7 @@ function setDifficultyUI(diff) {
 
 function renderPlayers() {
   playerListEl.innerHTML = "";
+
   for (const p of players) {
     const li = document.createElement("li");
     li.className = "player-row";
@@ -117,19 +120,16 @@ function renderScoreboard(scores) {
 function send(msg) {
   if (!ws) {
     setEntryError("Not connected yet — refresh the page.");
-    console.warn("[lobby] send before WS exists:", msg);
     return;
   }
 
   if (ws.readyState === WebSocket.CONNECTING) {
     setEntryError("Still connecting — try again in a second.");
-    console.warn("[lobby] send while WS connecting:", msg);
     return;
   }
 
   if (ws.readyState !== WebSocket.OPEN) {
     setEntryError("Disconnected from server. Refresh to reconnect.");
-    console.warn("[lobby] send on non-open WS (state " + ws.readyState + "):", msg);
     return;
   }
 
@@ -160,6 +160,7 @@ function startCountdown(duration) {
 }
 
 function resetMatchUI() {
+  resultSaved = false;
   scoreDisplay.textContent = "0";
   feedback.textContent = "";
   feedback.className = "feedback";
@@ -171,6 +172,9 @@ function resetMatchUI() {
 }
 
 async function saveMultiplayerResult(finalScores) {
+  if (resultSaved) return;
+  resultSaved = true;
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -316,7 +320,7 @@ function handleMessage(msg) {
 
         li.innerHTML = `
           <span class="scoreboard-rank">${i + 1}</span>
-          <span class="scoreboard-name">${p.username}</span>
+          <span class="scoreboard-name">${p.username}${p.player_id === myId ? " (you)" : ""}</span>
           <span class="scoreboard-score numeric">${p.score}</span>
         `;
 
@@ -412,8 +416,11 @@ rematchBtn.addEventListener("click", () => {
   send({ type: "start_game" });
 });
 
-backToLobbyBtn.addEventListener("click", () => {
-  send({ type: "leave_room" });
+statsAfterGameBtn?.addEventListener("click", () => {
+  location.href = "stats.html";
+});
+
+homeAfterGameBtn?.addEventListener("click", () => {
   location.href = "home.html";
 });
 
