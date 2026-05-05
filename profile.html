@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Profile</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-mark"></div>
+      <span>ClimbQuest</span>
+      <span class="nav-version">v1.2</span>
+    </div>
+    <div class="nav-links">
+      <a id="navHome">Home</a>
+      <a id="navPractice">Practice</a>
+      <a id="navStats">Leaderboard</a>
+      <a id="navForum">Forum</a>
+      <a class="active">Profile</a>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2);">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--grad-iri); background-size: 200% 200%; animation: iri-shift 6s ease-in-out infinite;"></div>
+        <span id="navUser">climber</span>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="home-shell">
+    <div class="home-ambient"></div>
+    <div class="home-container" style="max-width: 720px; padding-top: 120px;">
+
+      <div class="profile-header">
+        <div class="eyebrow eyebrow-dot">Your account</div>
+        <h1 class="home-headline" style="font-size: 64px; margin-top: 14px;">
+          Edit your <span class="iri-text">profile.</span>
+        </h1>
+      </div>
+
+      <div class="profile-monkey-wrap">
+        <div data-monkey data-size="180"></div>
+      </div>
+
+      <form id="profileForm" class="form profile-form">
+        <div class="profile-field">
+          <label for="profileUsername">Handle</label>
+          <input type="text" id="profileUsername" placeholder="climber_07" maxlength="16" required />
+        </div>
+
+        <div class="profile-field">
+          <label for="profileEmail">Email</label>
+          <input type="email" id="profileEmail" disabled />
+          <p class="profile-hint">Email is locked. Contact support to change it.</p>
+        </div>
+
+        <button type="submit" class="primary-btn" id="profileSaveBtn">Save changes</button>
+        <p id="profileMessage" class="message"></p>
+      </form>
+
+      <div class="profile-divider"></div>
+
+      <form id="passwordForm" class="form profile-form">
+        <div class="eyebrow eyebrow-dot" style="margin-bottom: 8px;">Password</div>
+
+        <div class="profile-field">
+          <label for="newPassword">New password</label>
+          <input type="password" id="newPassword" placeholder="••••••••" minlength="6" />
+        </div>
+
+        <div class="profile-field">
+          <label for="confirmPassword">Confirm new password</label>
+          <input type="password" id="confirmPassword" placeholder="••••••••" minlength="6" />
+        </div>
+
+        <button type="submit" class="secondary-btn" id="passwordSaveBtn">Update password</button>
+        <p id="passwordMessage" class="message"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="monkey.js"></script>
+  <script type="module" src="profile.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('navHome')?.addEventListener('click', () => location.href = 'home.html');
+      document.getElementById('navPractice')?.addEventListener('click', () => location.href = 'practice.html');
+      document.getElementById('navStats')?.addEventListener('click', () => location.href = 'leaderboard.html');
+      document.getElementById('navForum')?.addEventListener('click', () => location.href = 'forum.html');
+    });
+  </script>
+</body>
+</html>

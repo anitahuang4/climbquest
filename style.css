@@ -515,7 +515,10 @@ body::after {
 
 /* HUD */
 .match-hud {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  /* z-index 200 so the HUD (with the timer) sits above the lobby's .nav
+     (z-index 100). Without this, the nav covers the match-hud and the
+     timer becomes invisible during a multiplayer match. */
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   height: 72px;
   padding: 0 32px;
   background: rgba(0,0,0,.7);
@@ -1198,73 +1201,8 @@ canvas#gameCanvas { display: none; }
     font-size: 44px;
   }
 }
+
 /* ===== Multiplayer Game Over Actions ===== */
-
-.game-over {
-  background: rgba(5, 5, 5, 0.92);
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  padding: 32px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(18px);
-}
-
-.game-over h2 {
-  margin-top: 12px;
-  margin-bottom: 20px;
-  font-size: 42px;
-  font-weight: 500;
-  color: var(--ink);
-  letter-spacing: -0.03em;
-}
-
-.final-scores {
-  list-style: none;
-  padding: 0;
-  margin: 22px 0 0;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.final-score-row {
-  display: grid;
-  grid-template-columns: 56px 1fr 90px;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
-}
-
-.final-score-row:last-child {
-  border-bottom: none;
-}
-
-.final-score-row.is-me {
-  background: linear-gradient(
-    90deg,
-    rgba(113, 248, 214, 0.14),
-    rgba(226, 255, 141, 0.08)
-  );
-}
-
-.final-score-row .scoreboard-rank {
-  color: var(--ink-2);
-  font-family: var(--type-mono);
-  letter-spacing: 0.12em;
-}
-
-.final-score-row .scoreboard-name {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.final-score-row .scoreboard-score {
-  text-align: right;
-  color: var(--ink);
-}
-
 .game-over .home-actions {
   display: flex;
   justify-content: center;
@@ -1278,5 +1216,25 @@ canvas#gameCanvas { display: none; }
 .game-over .stats-btn {
   width: auto;
   min-width: 160px;
-  padding: 14px 22px;
+  padding: 0 24px;
+}
+
+.game-over .stats-btn {
+  background: #ffffff;
+  color: #000000;
+}
+
+.game-over .stats-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(255,255,255,.12);
+}
+
+.game-over .secondary-btn {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line-3);
+}
+
+.game-over .secondary-btn:hover {
+  border-color: var(--ink-3);
 }

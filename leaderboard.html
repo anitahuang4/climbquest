@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>ClimbQuest — Leaderboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-brand">
+      <div class="nav-mark"></div>
+      <span>ClimbQuest</span>
+      <span class="nav-version">v1.2</span>
+    </div>
+    <div class="nav-links">
+      <a id="navHome">Home</a>
+      <a id="navPractice">Practice</a>
+      <a class="active">Leaderboard</a>
+      <a id="navForum">Forum</a>
+      <a id="navProfile">Profile</a>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2);">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--grad-iri); background-size: 200% 200%; animation: iri-shift 6s ease-in-out infinite;"></div>
+        <span id="navUser">climber</span>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="home-shell">
+    <div class="home-ambient"></div>
+    <div class="home-container">
+
+      <div class="leaderboard-header">
+        <div class="eyebrow eyebrow-dot">Global rankings</div>
+        <h1 class="home-headline" style="font-size: 64px; margin-top: 14px;">
+          The <span class="iri-text">summit.</span>
+        </h1>
+        <p class="home-sub" style="margin-top: 16px;">Top climbers across every match.</p>
+      </div>
+
+      <div class="leaderboard-filter-bar">
+        <button class="filter-tag active" data-scope="all">All time</button>
+        <button class="filter-tag" data-scope="week">This week</button>
+        <button class="filter-tag" data-scope="today">Today</button>
+
+        <span class="leaderboard-spacer"></span>
+
+        <button class="filter-tag active" data-difficulty="any">Any difficulty</button>
+        <button class="filter-tag" data-difficulty="easy">Novice</button>
+        <button class="filter-tag" data-difficulty="medium">Climber</button>
+        <button class="filter-tag" data-difficulty="hard">Apex</button>
+      </div>
+
+      <div class="leaderboard-panel">
+        <div class="leaderboard-row leaderboard-row-head">
+          <span class="leaderboard-rank-col">Rank</span>
+          <span class="leaderboard-name-col">Climber</span>
+          <span class="leaderboard-stat-col">Games</span>
+          <span class="leaderboard-stat-col">Best</span>
+        </div>
+
+        <div id="leaderboardBody">
+          <div class="leaderboard-empty" id="leaderboardEmpty">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="leaderboard.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('navHome')?.addEventListener('click', () => location.href = 'home.html');
+      document.getElementById('navPractice')?.addEventListener('click', () => location.href = 'practice.html');
+      document.getElementById('navForum')?.addEventListener('click', () => location.href = 'forum.html');
+      document.getElementById('navProfile')?.addEventListener('click', () => location.href = 'profile.html');
+    });
+  </script>
+</body>
+</html>

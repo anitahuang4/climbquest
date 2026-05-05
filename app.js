@@ -64,7 +64,7 @@ if (authForm) {
 
         window.location.href = "home.html";
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -74,13 +74,29 @@ if (authForm) {
           },
         });
 
-        if (error) {
-          message.textContent = error.message;
+        if (signUpError) {
+          message.textContent = signUpError.message;
           return;
         }
 
-        message.textContent =
-          "Registration successful! You can now log in.";
+        if (signUpData?.session) {
+          window.location.href = "home.html";
+          return;
+        }
+
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          // Most common reason: project requires email confirmation.
+          message.textContent =
+            "Account created. Check your email to confirm, then sign in.";
+          return;
+        }
+
+        window.location.href = "home.html";
       }
     } catch (err) {
       console.error(err);

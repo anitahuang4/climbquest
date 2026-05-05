@@ -134,7 +134,13 @@ async function submitAnswer() {
     animateMonkey("up");
     setTimeout(loadQuestion, 600);
   } else {
-    feedback.textContent = `Wrong! The answer was ${currentAnswer}`;
+    const prevScore = score;
+    score = Math.max(0, score - 1);
+    scoreDisplay.textContent = score;
+    const lost = prevScore - score;
+    feedback.textContent = lost
+      ? `Wrong! −1 · Answer was ${currentAnswer}`
+      : `Wrong! Answer was ${currentAnswer}`;
     feedback.className = "feedback wrong";
     answerInput.classList.add("incorrect");
     answerInput.disabled = true;
@@ -174,6 +180,47 @@ function endGame() {
   answerInput.disabled = true;
   finalScoreEl.textContent = score;
   gameOverEl.style.display = "flex";
+
+  saveGameResult();
+}
+
+async function saveGameResult() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    console.error("No active session. Score not saved.");
+    return;
+  }
+
+  const username =
+    session.user.user_metadata?.username ||
+    session.user.email?.split("@")[0] ||
+    "climber";
+
+  const payload = {
+    user_id: session.user.id,
+    score: score,
+    difficulty: difficulty,
+    duration_seconds: 60,
+    username,
+  };
+
+  let { error } = await supabase.from("game_results").insert(payload);
+
+  // Backwards compatibility: if the `username` column doesn't exist yet on
+  // game_results, retry without it so older Supabase schemas keep working.
+  if (error && /username/i.test(error.message)) {
+    delete payload.username;
+    ({ error } = await supabase.from("game_results").insert(payload));
+  }
+
+  if (error) {
+    console.error("Error saving game result:", error.message);
+  } else {
+    console.log("Game result saved successfully.");
+  }
 }
 
 // Play again
