@@ -389,6 +389,7 @@ function handleMessage(msg) {
     }
 
     case "answer_result": {
+      const prevScore = parseInt(scoreDisplay.textContent || "0", 10);
       scoreDisplay.textContent = String(msg.score);
 
       if (msg.correct) {
@@ -396,7 +397,10 @@ function handleMessage(msg) {
         feedback.className = "feedback";
         answerInput.classList.add("correct");
       } else {
-        feedback.textContent = `Wrong! Answer was ${msg.correct_answer}`;
+        const lost = prevScore - msg.score;
+        feedback.textContent = lost
+          ? `Wrong! −1 · Answer was ${msg.correct_answer}`
+          : `Wrong! Answer was ${msg.correct_answer}`;
         feedback.className = "feedback wrong";
         answerInput.classList.add("incorrect");
       }
