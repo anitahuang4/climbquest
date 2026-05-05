@@ -44,7 +44,7 @@ let isHost = false;
 let roomCode = null;
 let currentDifficulty = "easy";
 let currentQuestionId = null;
-let players = [];   // [{id, username, score, is_host}]
+let players = [];
 let timerInterval = null;
 
 function show(view) {
@@ -63,7 +63,7 @@ function setHostUI() {
 
 function setDifficultyUI(diff) {
   currentDifficulty = diff;
-  document.querySelectorAll(".diff-btn").forEach(b => {
+  document.querySelectorAll(".diff-btn").forEach((b) => {
     b.classList.toggle("active", b.dataset.level === diff);
   });
   difficultyText.textContent = DIFF_LABEL[diff] || "Novice";
@@ -75,33 +75,41 @@ function renderPlayers() {
   for (const p of players) {
     const li = document.createElement("li");
     li.className = "player-row";
+
     const dot = document.createElement("span");
     dot.className = "player-dot";
+
     const name = document.createElement("span");
     name.className = "player-name";
     name.textContent = p.username + (p.id === myId ? " (you)" : "");
+
     li.appendChild(dot);
     li.appendChild(name);
+
     if (p.is_host) {
       const tag = document.createElement("span");
       tag.className = "player-host-tag";
       tag.textContent = "HOST";
       li.appendChild(tag);
     }
+
     playerListEl.appendChild(li);
   }
 }
 
 function renderScoreboard(scores) {
   scoreboardListEl.innerHTML = "";
+
   scores.forEach((p, i) => {
     const li = document.createElement("li");
     li.className = "scoreboard-row" + (p.player_id === myId ? " is-me" : "");
+
     li.innerHTML = `
       <span class="scoreboard-rank">${i + 1}</span>
       <span class="scoreboard-name">${p.username}${p.player_id === myId ? " (you)" : ""}</span>
       <span class="scoreboard-score numeric">${p.score}</span>
     `;
+
     scoreboardListEl.appendChild(li);
   });
 }
@@ -112,16 +120,19 @@ function send(msg) {
     console.warn("[lobby] send before WS exists:", msg);
     return;
   }
+
   if (ws.readyState === WebSocket.CONNECTING) {
     setEntryError("Still connecting — try again in a second.");
     console.warn("[lobby] send while WS connecting:", msg);
     return;
   }
+
   if (ws.readyState !== WebSocket.OPEN) {
     setEntryError("Disconnected from server. Refresh to reconnect.");
     console.warn("[lobby] send on non-open WS (state " + ws.readyState + "):", msg);
     return;
   }
+
   ws.send(JSON.stringify(msg));
 }
 
@@ -132,14 +143,18 @@ function setEntryError(text) {
 
 function startCountdown(duration) {
   clearInterval(timerInterval);
+
   let left = duration;
   timerEl.textContent = left;
   timerEl.className = "timer";
+
   timerInterval = setInterval(() => {
     left--;
     timerEl.textContent = left;
+
     if (left <= 10) timerEl.className = "timer danger";
     else if (left <= 20) timerEl.className = "timer warning";
+
     if (left <= 0) clearInterval(timerInterval);
   }, 1000);
 }
@@ -155,6 +170,38 @@ function resetMatchUI() {
   questionText.textContent = "? × ?";
 }
 
+async function saveMultiplayerResult(finalScores) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    console.error("No active session. Multiplayer score not saved.");
+    return;
+  }
+
+  const myResult = finalScores.find((p) => p.player_id === myId);
+
+  if (!myResult) {
+    console.error("Could not find current user's score in final scores.");
+    return;
+  }
+
+  const { error } = await supabase.from("game_results").insert({
+    user_id: session.user.id,
+    score: myResult.score,
+    difficulty: currentDifficulty,
+    duration_seconds: 60,
+    mode: "multiplayer",
+  });
+
+  if (error) {
+    console.error("Error saving multiplayer score:", error.message);
+  } else {
+    console.log("Multiplayer score saved successfully.");
+  }
+}
+
 function handleMessage(msg) {
   switch (msg.type) {
     case "room_created":
@@ -162,14 +209,17 @@ function handleMessage(msg) {
       roomCode = msg.code;
       isHost = !!msg.is_host;
       players = msg.players;
+
       setDifficultyUI(msg.difficulty);
       roomCodeEl.textContent = msg.code;
       matchCode.textContent = msg.code;
+
       setHostUI();
       renderPlayers();
       show("waiting");
       break;
     }
+
     case "player_joined": {
       players.push({
         id: msg.player.id,
@@ -177,36 +227,48 @@ function handleMessage(msg) {
         score: msg.player.score || 0,
         is_host: false,
       });
+
       renderPlayers();
       break;
     }
+
     case "player_left": {
-      players = players.filter(p => p.id !== msg.player_id);
+      players = players.filter((p) => p.id !== msg.player_id);
       renderPlayers();
       break;
     }
+
     case "host_changed": {
-      players = players.map(p => ({ ...p, is_host: p.id === msg.host_id }));
+      players = players.map((p) => ({ ...p, is_host: p.id === msg.host_id }));
       isHost = msg.host_id === myId;
+
       setHostUI();
       renderPlayers();
       break;
     }
+
     case "difficulty_changed": {
       setDifficultyUI(msg.difficulty);
       break;
     }
+
     case "game_started": {
       resetMatchUI();
       show("match");
       answerInput.focus();
       startCountdown(msg.duration || 60);
-      // initial scoreboard from waiting-room players
-      renderScoreboard(players.map(p => ({
-        player_id: p.id, username: p.username, score: 0,
-      })));
+
+      renderScoreboard(
+        players.map((p) => ({
+          player_id: p.id,
+          username: p.username,
+          score: 0,
+        }))
+      );
+
       break;
     }
+
     case "question": {
       currentQuestionId = msg.question_id;
       questionText.textContent = msg.question;
@@ -219,8 +281,10 @@ function handleMessage(msg) {
       answerInput.focus();
       break;
     }
+
     case "answer_result": {
       scoreDisplay.textContent = String(msg.score);
+
       if (msg.correct) {
         feedback.textContent = "Correct!";
         feedback.className = "feedback";
@@ -230,29 +294,41 @@ function handleMessage(msg) {
         feedback.className = "feedback wrong";
         answerInput.classList.add("incorrect");
       }
+
       break;
     }
+
     case "score_update": {
       renderScoreboard(msg.scores);
       break;
     }
+
     case "game_over": {
       clearInterval(timerInterval);
       timerEl.textContent = "0";
+
+      saveMultiplayerResult(msg.final_scores);
+
       finalScoresEl.innerHTML = "";
       msg.final_scores.forEach((p, i) => {
         const li = document.createElement("li");
         li.className = "final-score-row" + (p.player_id === myId ? " is-me" : "");
-        li.innerHTML = `<span class="scoreboard-rank">${i + 1}</span>
-                        <span class="scoreboard-name">${p.username}</span>
-                        <span class="scoreboard-score numeric">${p.score}</span>`;
+
+        li.innerHTML = `
+          <span class="scoreboard-rank">${i + 1}</span>
+          <span class="scoreboard-name">${p.username}</span>
+          <span class="scoreboard-score numeric">${p.score}</span>
+        `;
+
         finalScoresEl.appendChild(li);
       });
+
       gameOverEl.style.display = "flex";
       answerInput.disabled = true;
       submitBtn.disabled = true;
       break;
     }
+
     case "error": {
       if (entryView.classList.contains("hidden")) {
         waitingMessage.textContent = msg.message;
@@ -266,17 +342,27 @@ function handleMessage(msg) {
 
 function submitAnswer() {
   const v = answerInput.value.trim();
+
   if (!v || !currentQuestionId) return;
-  send({ type: "submit_answer", question_id: currentQuestionId, answer: Number(v) });
-  // Lock until server responds with the next question.
+
+  send({
+    type: "submit_answer",
+    question_id: currentQuestionId,
+    answer: Number(v),
+  });
+
   answerInput.disabled = true;
   submitBtn.disabled = true;
 }
 
 submitBtn.addEventListener("click", submitAnswer);
+
 answerInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") submitAnswer();
-  if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") e.preventDefault();
+
+  if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {
+    e.preventDefault();
+  }
 });
 
 createBtn.addEventListener("click", () => {
@@ -286,10 +372,12 @@ createBtn.addEventListener("click", () => {
 
 joinBtn.addEventListener("click", () => {
   const code = (joinCodeInput.value || "").trim().toUpperCase();
+
   if (code.length !== 6) {
     setEntryError("Enter a 6-character code.");
     return;
   }
+
   setEntryError("");
   send({ type: "join_room", code });
 });
@@ -297,11 +385,12 @@ joinBtn.addEventListener("click", () => {
 joinCodeInput.addEventListener("input", () => {
   joinCodeInput.value = joinCodeInput.value.toUpperCase();
 });
+
 joinCodeInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") joinBtn.click();
 });
 
-document.querySelectorAll("#difficultyBar .diff-btn").forEach(btn => {
+document.querySelectorAll("#difficultyBar .diff-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (!isHost) return;
     send({ type: "set_difficulty", difficulty: btn.dataset.level });
@@ -324,13 +413,13 @@ rematchBtn.addEventListener("click", () => {
 });
 
 backToLobbyBtn.addEventListener("click", () => {
-  // Server already considers the room in `finished` state. Easiest path: leave + reload.
   send({ type: "leave_room" });
   location.href = "home.html";
 });
 
 roomCodeEl.addEventListener("click", async () => {
   if (!roomCode) return;
+
   try {
     await navigator.clipboard.writeText(roomCode);
     copyHint.textContent = "Copied";
@@ -341,39 +430,60 @@ roomCodeEl.addEventListener("click", async () => {
 });
 
 async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   if (!session) {
     location.href = "index.html";
     return;
   }
+
   myId = session.user.id;
   myUsername = session.user.user_metadata?.username || session.user.email || "climber";
   navUserEl.textContent = myUsername;
 
   const wsProto = location.protocol === "https:" ? "wss:" : "ws:";
-  const wsUrl = `${wsProto}//${location.host}/ws/lobby?token=${encodeURIComponent(session.access_token)}`;
+  const wsUrl = `${wsProto}//${location.host}/ws/lobby?token=${encodeURIComponent(
+    session.access_token
+  )}`;
+
   console.log("[lobby] connecting to", wsUrl);
   setEntryError("Connecting…");
+
   ws = new WebSocket(wsUrl);
 
   ws.addEventListener("open", () => {
     console.log("[lobby] WS open");
     setEntryError("");
   });
+
   ws.addEventListener("message", (e) => {
     console.log("[lobby] <-", e.data);
-    try { handleMessage(JSON.parse(e.data)); } catch (err) {
+
+    try {
+      handleMessage(JSON.parse(e.data));
+    } catch (err) {
       console.error("[lobby] bad JSON from server:", err);
     }
   });
+
   ws.addEventListener("close", (e) => {
     console.warn("[lobby] WS closed", e.code, e.reason);
+
     const reason = e.reason ? `: ${e.reason}` : "";
-    if (e.code === 4401) setEntryError(`Auth failed${reason}. Sign out and sign back in.`);
-    else if (e.code === 1006) setEntryError("Server not reachable. Is uvicorn running on port 3000?");
-    else setEntryError(`Disconnected (code ${e.code}${reason}).`);
+
+    if (e.code === 4401) {
+      setEntryError(`Auth failed${reason}. Sign out and sign back in.`);
+    } else if (e.code === 1006) {
+      setEntryError("Server not reachable. Is uvicorn running on port 3000?");
+    } else {
+      setEntryError(`Disconnected (code ${e.code}${reason}).`);
+    }
+
     waitingMessage.textContent = `Disconnected (code ${e.code}${reason}).`;
   });
+
   ws.addEventListener("error", (e) => {
     console.error("[lobby] WS error", e);
     setEntryError("WebSocket error — check the browser console.");
