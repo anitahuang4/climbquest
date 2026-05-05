@@ -36,6 +36,17 @@ const finalScoresEl = document.getElementById("finalScores");
 const rematchBtn = document.getElementById("rematchBtn");
 const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 const scoreboardListEl = document.getElementById("scoreboardList");
+const treeWrap = document.getElementById("treeWrap");
+
+// ----- Climbing tree (multi-lane) -----
+// One lane per player. Each lane has its own rungs, monkey, and score label.
+// Updated from `score_update` messages so all clients see all monkeys move.
+const TREE_RUNGS = 12;
+const TREE_HEIGHT = 520;
+const TREE_TARGET = 20; // matches the original single-lane target
+
+// pid -> { lane, monkey, scoreEl, finishEl, rungs, hueOffset }
+let lanes = new Map();
 
 let ws = null;
 let myId = null;
@@ -170,35 +181,126 @@ function resetMatchUI() {
   questionText.textContent = "? × ?";
 }
 
-async function saveMultiplayerResult(finalScores) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+function buildLanes() {
+  treeWrap.innerHTML = "";
+  lanes = new Map();
 
-  if (!session) {
-    console.error("No active session. Multiplayer score not saved.");
-    return;
-  }
+  // Local user's lane is always rendered first; everyone else follows in
+  // join order. The visual hue is offset per-lane so the monkeys are
+  // visually distinguishable.
+  const ordered = [
+    ...players.filter(p => p.id === myId),
+    ...players.filter(p => p.id !== myId),
+  ];
 
-  const myResult = finalScores.find((p) => p.player_id === myId);
+  ordered.forEach((p, idx) => {
+    const isMe = p.id === myId;
+    const hue = (idx * 47) % 360; // spread hues across lanes
 
-  if (!myResult) {
-    console.error("Could not find current user's score in final scores.");
-    return;
-  }
+    const lane = document.createElement("div");
+    lane.className = "iri-tree-lane" + (isMe ? " is-me" : "");
+    lane.dataset.pid = p.id;
 
-  const { error } = await supabase.from("game_results").insert({
-    user_id: session.user.id,
-    score: myResult.score,
-    difficulty: currentDifficulty,
-    duration_seconds: 60,
-    mode: "multiplayer",
+    const tree = document.createElement("div");
+    tree.className = "iri-tree";
+
+    const track = document.createElement("div");
+    track.className = "iri-tree-track";
+    tree.appendChild(track);
+
+    const finish = document.createElement("div");
+    finish.className = "iri-tree-finish";
+    finish.textContent = "0";
+    tree.appendChild(finish);
+
+    const rungs = [];
+    for (let i = 0; i < TREE_RUNGS; i++) {
+      const t = i / (TREE_RUNGS - 1);
+      const top = t * (TREE_HEIGHT - 60) + 20;
+      const rung = document.createElement("div");
+      rung.className = "iri-tree-rung";
+      rung.style.top = top + "px";
+      rung.dataset.threshold = (1 - t).toFixed(3);
+      tree.appendChild(rung);
+      rungs.push(rung);
+    }
+
+    const monkeyHolder = document.createElement("div");
+    monkeyHolder.className = "iri-tree-monkey";
+    monkeyHolder.style.top = (TREE_HEIGHT - 40) + "px";
+
+    const monkey = document.createElement("div");
+    monkey.dataset.monkey = "";
+    monkey.dataset.size = "56";
+    monkey.dataset.hue = String(hue);
+    monkeyHolder.appendChild(monkey);
+
+    tree.appendChild(monkeyHolder);
+
+    const label = document.createElement("div");
+    label.className = "iri-tree-label";
+
+    const eyebrow = document.createElement("div");
+    eyebrow.className = "eyebrow";
+    eyebrow.textContent = "P" + String(idx + 1).padStart(2, "0");
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "iri-tree-label-name";
+    nameEl.textContent = isMe ? `${p.username} (you)` : p.username;
+    nameEl.title = p.username;
+
+    const scoreEl = document.createElement("div");
+    scoreEl.className = "iri-tree-label-score";
+    scoreEl.textContent = "000";
+
+    label.appendChild(eyebrow);
+    label.appendChild(nameEl);
+    label.appendChild(scoreEl);
+
+    lane.appendChild(tree);
+    lane.appendChild(label);
+    treeWrap.appendChild(lane);
+
+    lanes.set(p.id, {
+      lane,
+      monkey: monkeyHolder,
+      scoreEl,
+      finishEl: finish,
+      rungs,
+    });
   });
 
-  if (error) {
-    console.error("Error saving multiplayer score:", error.message);
+  // Mount monkeys (monkey.js auto-mounts on DOMContentLoaded; we need a
+  // manual call for elements created after that).
+  if (window.ClimbQuestMonkey?.mount) {
+    window.ClimbQuestMonkey.mount();
+  }
+}
+
+function setLaneProgress(pid, score) {
+  const entry = lanes.get(pid);
+  if (!entry) return;
+  const progress = Math.min(1, score / TREE_TARGET);
+  entry.rungs.forEach(r => {
+    const threshold = parseFloat(r.dataset.threshold);
+    r.classList.toggle("reached", threshold <= progress + 0.001);
+  });
+  const monkeyY = (1 - progress) * (TREE_HEIGHT - 60) + 20;
+  entry.monkey.style.top = monkeyY + "px";
+
+  if (progress >= 0.999) {
+    entry.finishEl.classList.add("reached");
+    entry.finishEl.textContent = "▲";
   } else {
-    console.log("Multiplayer score saved successfully.");
+    entry.finishEl.classList.remove("reached");
+    entry.finishEl.textContent = Math.round(progress * 100);
+  }
+  entry.scoreEl.textContent = String(score).padStart(3, "0");
+}
+
+function applyAllScores(scores) {
+  for (const s of scores) {
+    setLaneProgress(s.player_id, s.score);
   }
 }
 
@@ -255,6 +357,10 @@ function handleMessage(msg) {
     case "game_started": {
       resetMatchUI();
       show("match");
+      buildLanes();
+      // Everyone starts at zero — paint that into the lanes immediately so
+      // monkeys all start at the bottom of the climb.
+      for (const p of players) setLaneProgress(p.id, 0);
       answerInput.focus();
       startCountdown(msg.duration || 60);
 
@@ -300,6 +406,7 @@ function handleMessage(msg) {
 
     case "score_update": {
       renderScoreboard(msg.scores);
+      applyAllScores(msg.scores);
       break;
     }
 

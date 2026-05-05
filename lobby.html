@@ -141,19 +141,8 @@
 
       <div class="match-body">
 
-        <div class="iri-tree-wrap">
-          <div class="iri-tree" id="iriTree">
-            <div class="iri-tree-track"></div>
-            <div class="iri-tree-finish" id="treeFinish">0</div>
-            <div class="iri-tree-monkey" id="treeMonkey" style="top: 480px;">
-              <div data-monkey data-size="64"></div>
-            </div>
-          </div>
-          <div class="iri-tree-label">
-            <div class="eyebrow">P01</div>
-            <div class="iri-tree-label-name">YOU</div>
-            <div class="iri-tree-label-score" id="treeScore">000</div>
-          </div>
+        <div class="iri-tree-wrap iri-tree-multi" id="treeWrap">
+          <!-- Lanes are injected by lobby.js when the match starts. -->
         </div>
 
         <div class="match-stage">
@@ -193,57 +182,8 @@
   <script src="monkey.js"></script>
   <script type="module" src="lobby.js"></script>
 
-  <!-- ===== Climbing tree rungs (reused from practice.html) ===== -->
   <script>
-    (function () {
-      const RUNGS = 12;
-      const TREE_HEIGHT = 520;
-      const tree = document.getElementById('iriTree');
-      const treeFinish = document.getElementById('treeFinish');
-      const treeMonkey = document.getElementById('treeMonkey');
-      const treeScore = document.getElementById('treeScore');
-      const TARGET = 20;
-
-      for (let i = 0; i < RUNGS; i++) {
-        const t = i / (RUNGS - 1);
-        const top = t * (TREE_HEIGHT - 60) + 20;
-        const rung = document.createElement('div');
-        rung.className = 'iri-tree-rung';
-        rung.style.top = top + 'px';
-        rung.dataset.threshold = (1 - t).toFixed(3);
-        tree.appendChild(rung);
-      }
-      const rungs = tree.querySelectorAll('.iri-tree-rung');
-
-      function setProgress(score) {
-        const progress = Math.min(1, score / TARGET);
-        rungs.forEach(r => {
-          const threshold = parseFloat(r.dataset.threshold);
-          r.classList.toggle('reached', threshold <= progress + 0.001);
-        });
-        const monkeyY = (1 - progress) * (TREE_HEIGHT - 60) + 20;
-        treeMonkey.style.top = monkeyY + 'px';
-
-        if (progress >= 0.999) {
-          treeFinish.classList.add('reached');
-          treeFinish.textContent = '▲';
-        } else {
-          treeFinish.classList.remove('reached');
-          treeFinish.textContent = Math.round(progress * 100);
-        }
-        treeScore.textContent = String(score).padStart(3, '0');
-      }
-      setProgress(0);
-
-      const scoreEl = document.getElementById('scoreDisplay');
-      const observer = new MutationObserver(() => {
-        const v = parseInt(scoreEl.textContent || '0', 10);
-        if (!isNaN(v)) setProgress(v);
-      });
-      observer.observe(scoreEl, { childList: true, characterData: true, subtree: true });
-    })();
-
-    // Streak counter (mirrors practice.html behavior)
+    // Streak counter (mirrors practice.html behavior).
     (function () {
       const feedback = document.getElementById('feedback');
       const streakEl = document.getElementById('streakDisplay');
@@ -258,7 +198,7 @@
       observer.observe(feedback, { childList: true, characterData: true, subtree: true });
     })();
 
-    // Nav links
+    // Nav links.
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('navHome')?.addEventListener('click', () => location.href = 'home.html');
       document.getElementById('navPractice')?.addEventListener('click', () => location.href = 'practice.html');
