@@ -671,6 +671,47 @@ body::after {
   font-feature-settings: 'tnum';
 }
 
+/* Multi-lane layout (lobby match view). Practice mode is untouched
+   because it never has .iri-tree-multi on the tree-wrap. */
+.match-body:has(.iri-tree-multi) {
+  grid-template-columns: 1fr 280px;
+  grid-template-areas:
+    "trees   trees"
+    "stage   scoreboard";
+  gap: 32px;
+}
+.match-body:has(.iri-tree-multi) .iri-tree-wrap.iri-tree-multi { grid-area: trees; }
+.match-body:has(.iri-tree-multi) .match-stage { grid-area: stage; }
+.match-body:has(.iri-tree-multi) .scoreboard-panel { grid-area: scoreboard; }
+
+.iri-tree-wrap.iri-tree-multi {
+  height: auto;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 16px 8px;
+}
+.iri-tree-lane {
+  width: var(--lane-width, 140px);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.iri-tree-lane .iri-tree {
+  width: 100%;
+  height: var(--lane-tree-height, 520px);
+  margin: 0;
+}
+.iri-tree-lane.compact .iri-tree-label .eyebrow,
+.iri-tree-lane.compact .iri-tree-label-name { display: none; }
+.iri-tree-lane.compact .iri-tree-label-score {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 /* Question + input column */
 .match-stage {
   display: flex;
