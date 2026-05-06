@@ -45,6 +45,15 @@ const TREE_HEIGHT = 520;
 const TREE_TARGET = 20;
 
 let lanes = new Map();
+let currentTreeHeight = TREE_HEIGHT;
+
+function laneSizing(n) {
+  if (n <= 6)  return { lane: 140, monkey: 56, treeHeight: 520, compact: false };
+  if (n <= 12) return { lane: 96,  monkey: 38, treeHeight: 460, compact: false };
+  if (n <= 20) return { lane: 76,  monkey: 30, treeHeight: 380, compact: true  };
+  if (n <= 30) return { lane: 60,  monkey: 24, treeHeight: 320, compact: true  };
+  return        { lane: 48,  monkey: 20, treeHeight: 280, compact: true  };
+}
 
 let ws = null;
 let myId = null;
@@ -220,6 +229,11 @@ function buildLanes() {
   treeWrap.innerHTML = "";
   lanes = new Map();
 
+  const sizing = laneSizing(players.length);
+  currentTreeHeight = sizing.treeHeight;
+  treeWrap.style.setProperty("--lane-width", sizing.lane + "px");
+  treeWrap.style.setProperty("--lane-tree-height", sizing.treeHeight + "px");
+
   const ordered = [
     ...players.filter((p) => p.id === myId),
     ...players.filter((p) => p.id !== myId),
@@ -230,7 +244,8 @@ function buildLanes() {
     const hue = (idx * 47) % 360;
 
     const lane = document.createElement("div");
-    lane.className = "iri-tree-lane" + (isMe ? " is-me" : "");
+    lane.className =
+      "iri-tree-lane" + (isMe ? " is-me" : "") + (sizing.compact ? " compact" : "");
     lane.dataset.pid = p.id;
 
     const tree = document.createElement("div");
@@ -249,7 +264,7 @@ function buildLanes() {
 
     for (let i = 0; i < TREE_RUNGS; i++) {
       const t = i / (TREE_RUNGS - 1);
-      const top = t * (TREE_HEIGHT - 60) + 20;
+      const top = t * (sizing.treeHeight - 60) + 20;
 
       const rung = document.createElement("div");
       rung.className = "iri-tree-rung";
@@ -262,11 +277,11 @@ function buildLanes() {
 
     const monkeyHolder = document.createElement("div");
     monkeyHolder.className = "iri-tree-monkey";
-    monkeyHolder.style.top = TREE_HEIGHT - 40 + "px";
+    monkeyHolder.style.top = sizing.treeHeight - 40 + "px";
 
     const monkey = document.createElement("div");
     monkey.dataset.monkey = "";
-    monkey.dataset.size = "56";
+    monkey.dataset.size = String(sizing.monkey);
     monkey.dataset.hue = String(hue);
 
     monkeyHolder.appendChild(monkey);
@@ -321,7 +336,7 @@ function setLaneProgress(pid, score) {
     r.classList.toggle("reached", threshold <= progress + 0.001);
   });
 
-  const monkeyY = (1 - progress) * (TREE_HEIGHT - 60) + 20;
+  const monkeyY = (1 - progress) * (currentTreeHeight - 60) + 20;
   entry.monkey.style.top = monkeyY + "px";
 
   if (progress >= 0.999) {
@@ -583,7 +598,54 @@ roomCodeEl.addEventListener("click", async () => {
   }
 });
 
+function runFakeMode(n) {
+  myId = "fake-me";
+  myUsername = "you";
+  navUserEl.textContent = myUsername;
+  isHost = true;
+  roomCode = "FAKE01";
+  matchCode.textContent = roomCode;
+  setDifficultyUI("easy");
+
+  players = [
+    { id: myId, username: myUsername, score: 0, is_host: true },
+    ...Array.from({ length: Math.max(0, n - 1) }, (_, i) => ({
+      id: `fake-${i}`,
+      username: `climber-${String(i + 1).padStart(2, "0")}`,
+      score: 0,
+      is_host: false,
+    })),
+  ];
+
+  resetMatchUI();
+  show("match");
+  buildLanes();
+
+  const fakeScores = players.map((p) => ({
+    player_id: p.id,
+    username: p.username,
+    score: Math.floor(Math.random() * (TREE_TARGET + 1)),
+  }));
+  applyAllScores(fakeScores);
+  renderScoreboard([...fakeScores].sort((a, b) => b.score - a.score));
+
+  startCountdown(60);
+  questionText.textContent = "7 × 8";
+  answerInput.disabled = true;
+  submitBtn.disabled = true;
+  feedback.textContent = `Fake-player preview: ${players.length} climbers. No backend connected.`;
+}
+
 async function init() {
+  const fakeCount = parseInt(
+    new URLSearchParams(location.search).get("fake") || "0",
+    10
+  );
+  if (fakeCount > 0) {
+    runFakeMode(fakeCount);
+    return;
+  }
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
