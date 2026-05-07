@@ -712,6 +712,37 @@ body::after {
   margin-top: 4px;
 }
 
+/* Highlight the player's own lane so they can spot themselves at a glance. */
+.iri-tree-lane.is-me .iri-tree {
+  background: radial-gradient(ellipse at 50% 60%, rgba(108,230,224,.07), transparent 70%);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(108,230,224,.18);
+}
+.iri-tree-lane.is-me .iri-tree-label .eyebrow {
+  background: var(--grad-iri);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: iri-shift 6s ease-in-out infinite;
+}
+.iri-tree-lane.is-me .iri-tree-label-name { color: var(--ink); font-weight: 600; }
+.iri-tree-lane.is-me .iri-tree-monkey::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(108,230,224,.35), rgba(180,163,255,.15) 50%, transparent 75%);
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: -1;
+  animation: iri-shift 6s ease-in-out infinite;
+}
+
 /* Question + input column */
 .match-stage {
   display: flex;

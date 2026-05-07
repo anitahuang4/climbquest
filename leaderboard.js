@@ -67,11 +67,10 @@ async function loadAndRender(myUsername) {
 
   cachedRows = (data || []).map(row => ({
     ...row,
-    // Older rows may not have a username column populated. Use the active
-    // user's handle for their own rows; everyone else gets a stable fallback.
-    displayName:
-      row.username ||
-      (row.user_id === myUserId ? myUsername : `Player ${shortId(row.user_id)}`),
+    // realName is null for legacy rows that don't have a username (older
+    // multiplayer inserts). Aggregation below picks any non-null realName
+    // across a user's rows so they don't get stuck as "Player XXXX".
+    realName: row.username || (row.user_id === myUserId ? myUsername : null),
   }));
 
   render();
@@ -82,27 +81,32 @@ function render() {
 
   const rows = cachedRows.filter(matchesFilters);
 
-  // Aggregate per user_id: best score, total games.
+  // Aggregate per user_id: best score, total games. realName is taken from
+  // any row that has one — so a user's name shows up even if their best
+  // score happens to be on a legacy row without a username.
   const byUser = new Map();
   for (const row of rows) {
     const existing = byUser.get(row.user_id);
     if (!existing) {
       byUser.set(row.user_id, {
         user_id: row.user_id,
-        displayName: row.displayName,
+        realName: row.realName,
         bestScore: row.score,
         games: 1,
       });
     } else {
       existing.games += 1;
-      if (row.score > existing.bestScore) {
-        existing.bestScore = row.score;
-        existing.displayName = row.displayName;
-      }
+      if (row.score > existing.bestScore) existing.bestScore = row.score;
+      if (!existing.realName && row.realName) existing.realName = row.realName;
     }
   }
 
-  const sorted = [...byUser.values()].sort((a, b) => b.bestScore - a.bestScore);
+  const sorted = [...byUser.values()]
+    .map(entry => ({
+      ...entry,
+      displayName: entry.realName || `Player ${shortId(entry.user_id)}`,
+    }))
+    .sort((a, b) => b.bestScore - a.bestScore);
 
   if (sorted.length === 0) {
     bodyEl.innerHTML = `<div class="leaderboard-empty">No games yet — be the first to climb.</div>`;
