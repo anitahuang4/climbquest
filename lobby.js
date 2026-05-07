@@ -208,13 +208,28 @@ async function saveMultiplayerResult(finalScores) {
     return;
   }
 
-  const { error } = await supabase.from("game_results").insert({
+  const username =
+    session.user.user_metadata?.username ||
+    session.user.email?.split("@")[0] ||
+    "climber";
+
+  const payload = {
     user_id: session.user.id,
     score: myResult.score,
     difficulty: currentDifficulty,
     duration_seconds: 60,
     mode: "multiplayer",
-  });
+    username,
+  };
+
+  let { error } = await supabase.from("game_results").insert(payload);
+
+  // Same backwards-compat as practice.js: older schemas may not have a
+  // `username` column on game_results yet.
+  if (error && /username/i.test(error.message)) {
+    delete payload.username;
+    ({ error } = await supabase.from("game_results").insert(payload));
+  }
 
   if (error) {
     console.error("Error saving multiplayer score:", error.message);
